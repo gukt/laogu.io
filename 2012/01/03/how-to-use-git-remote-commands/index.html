@@ -6,25 +6,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="generator" content="老谷的技术博客">
-    <title>Hello World - 老谷的技术博客</title>
+    <title>Git常用远程操作 - 老谷的技术博客</title>
     <meta name="author" content="gukt &lt;gukaitong@gmail.com&gt;">
     
     
     
         <link rel="alternate" type="application/atom+xml" title="RSS" href="/laogu.io/atom.xml">
     
-    <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"gukt <gukaitong@gmail.com>","sameAs":["https://github.com/","http://stackoverflow.com/users","https://twitter.com/","https://facebook.com/","https://plus.google.com/","https://www.linkedin.com/profile/","mailto"]},"articleBody":"Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub.\nQuick StartCreate a new post1$ hexo new \"My New Post\"\n\nMore info: Writing\nRun server1$ hexo server\n\nMore info: Server\nGenerate static files1$ hexo generate\n\nMore info: Generating\nDeploy to remote sites1$ hexo deploy\n\nMore info: Deployment\n","dateCreated":"2019-07-10T19:38:25+08:00","dateModified":"2019-07-10T19:38:25+08:00","datePublished":"2019-07-10T19:38:25+08:00","description":"","headline":"Hello World","image":[],"mainEntityOfPage":{"@type":"WebPage","@id":"http://gukt.github.io/laogu.io/2019/07/10/hello-world/"},"publisher":{"@type":"Organization","name":"gukt <gukaitong@gmail.com>","sameAs":["https://github.com/","http://stackoverflow.com/users","https://twitter.com/","https://facebook.com/","https://plus.google.com/","https://www.linkedin.com/profile/","mailto"]},"url":"http://gukt.github.io/laogu.io/2019/07/10/hello-world/"}</script>
-    <meta name="description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"gukt <gukaitong@gmail.com>","sameAs":["https://github.com/","http://stackoverflow.com/users","https://twitter.com/","https://facebook.com/","https://plus.google.com/","https://www.linkedin.com/profile/","mailto"]},"articleBody":"Git常用远程操作在对Git远程操作命令理解之前，首先看下图，该图可以直观地帮助我们理解各操作命令执行后所影响的区域。\n\n本文假设你对git的常规概念如：工作区（workspace），索引区（index）,本地仓库（local repository）和远程仓库（remote repository）都已经有了初步的了解。\n\n\ngit clone该命令用于克隆一个远程仓库到本地文件。\n\n$ git clone https://github.com/bafeimao/pages1该命令会在本地自动创建文件夹pages1\n\n也可以指定要克隆到的本地文件夹名\n\n$ git clone https://github.com/bafeimao/pages1 blog\n\n可以提供多种协议访问方式，例如，github上提供如下三种常见的协议：\n\n$ git clone https://github.com/bafeimao/pages1$ git clone git@github.com:bafeimao/pages1.git\n\ngit remote要想对远程仓库进行管理，首先要使用remote add命令添加一个远程仓库对应的名称（其他命令如：git pull,git push等操作都将依赖于该远程仓库名 ）\n添加一个远程仓库(需要指定一个名称和仓库的具体地址)\n\n$ git remote add origin git@github.com:bafeimao/pages1.git\n\n 查看当前已经添加过的所有远程仓库列表\n\n$ git remoteorigin\n\n使用-v选项可以看到更具体的名称和远程仓库URL\n\n$ git remote -vorigin    git@github.com:bafeimao/coconut-projects.git (fetch)origin    git@github.com:bafeimao/coconut-projects.git (push)\n\ngit fetch成功添加远程仓库后，一旦远程仓库有更新，我就可以使用fetch命令将远程更改取回到本地仓库， 注意：这里是将更改取到本地仓库（local repository）而非本地工作区(workspace)，详见参考图）\n\n$ git fetch origin\n\n默认取回所有分支的更改，可以指定只获取具体分支的更改\n\n$ git fetch origin dev\n\ngit pull根据上图，也可以直接将远程的某个分支的更改取回到工作区（workspace）中的指定分支上，这就要用到git pull命令了，该命令的基本用法如下:\n$ git pull [&lt;remote-repo&gt; [&lt;remote-branch&gt;[:&lt;local-branch&gt;]]]\n将远程仓库master分支上的更改合并到本地工作区的dev分支\n\n$ git pull origin master:dev\n冒号后面的本地分支名可以省略，省略时表示合并到当前工作分支:$ git pull origin master\n\ngit push如果需要将本地仓库的更改提交到远程，就需要使用git push命令，该命令的基本用法如下：\n$ git push [&lt;remote-repo&gt; [&lt;local-branch&gt;[:&lt;remote-branch&gt;]]]\n将本地dev分支推送到远程dev分支\n\n$ git push origin dev:dev\n\n另外可以设定当前工作分支（假设为dev）的upstream分支（即对应的远程分支），这样设定以后，在执行push时可以省略本地分支名：远程分支名，甚至远程仓库名称origin也可以省略\n\n$ git push –set-upstream origin dev\n\n此时可以省略分支名\n\n$ git push origin\n\n甚至连origin都可以省略\n\n$ git push\n\n注意：如果指定的远程分支不存在，则会在远程自动创建 \n如果没有指定本地分支名则表示删除远程分支，下面两种方式均执行删除远程分支dev\n12$ git push origin :dev $ git push origin --delete dev\n\n","dateCreated":"2012-01-03T16:29:29+08:00","dateModified":"2019-07-10T23:01:02+08:00","datePublished":"2012-01-03T16:29:29+08:00","description":"","headline":"Git常用远程操作","image":[],"mainEntityOfPage":{"@type":"WebPage","@id":"http://gukt.github.io/laogu.io/2012/01/03/how-to-use-git-remote-commands/"},"publisher":{"@type":"Organization","name":"gukt <gukaitong@gmail.com>","sameAs":["https://github.com/","http://stackoverflow.com/users","https://twitter.com/","https://facebook.com/","https://plus.google.com/","https://www.linkedin.com/profile/","mailto"]},"url":"http://gukt.github.io/laogu.io/2012/01/03/how-to-use-git-remote-commands/"}</script>
+    <meta name="description" content="Git常用远程操作在对Git远程操作命令理解之前，首先看下图，该图可以直观地帮助我们理解各操作命令执行后所影响的区域。  本文假设你对git的常规概念如：工作区（workspace），索引区（index）,本地仓库（local repository）和远程仓库（remote repository）都已经有了初步的了解。   git clone该命令用于克隆一个远程仓库到本地文件。  $ git c">
 <meta property="og:type" content="blog">
-<meta property="og:title" content="Hello World">
-<meta property="og:url" content="http://gukt.github.io/laogu.io/2019/07/10/hello-world/index.html">
+<meta property="og:title" content="Git常用远程操作">
+<meta property="og:url" content="http://gukt.github.io/laogu.io/2012/01/03/how-to-use-git-remote-commands/index.html">
 <meta property="og:site_name" content="老谷的技术博客">
-<meta property="og:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+<meta property="og:description" content="Git常用远程操作在对Git远程操作命令理解之前，首先看下图，该图可以直观地帮助我们理解各操作命令执行后所影响的区域。  本文假设你对git的常规概念如：工作区（workspace），索引区（index）,本地仓库（local repository）和远程仓库（remote repository）都已经有了初步的了解。   git clone该命令用于克隆一个远程仓库到本地文件。  $ git c">
 <meta property="og:locale" content="zh-cn">
-<meta property="og:updated_time" content="2019-07-10T11:38:25.883Z">
+<meta property="og:image" content="http://image.beekka.com/blog/2014/bg2014061202.jpg">
+<meta property="og:updated_time" content="2019-07-10T15:01:02.129Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Hello World">
-<meta name="twitter:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+<meta name="twitter:title" content="Git常用远程操作">
+<meta name="twitter:description" content="Git常用远程操作在对Git远程操作命令理解之前，首先看下图，该图可以直观地帮助我们理解各操作命令执行后所影响的区域。  本文假设你对git的常规概念如：工作区（workspace），索引区（index）,本地仓库（local repository）和远程仓库（remote repository）都已经有了初步的了解。   git clone该命令用于克隆一个远程仓库到本地文件。  $ git c">
+<meta name="twitter:image" content="http://image.beekka.com/blog/2014/bg2014061202.jpg">
     
     
         
@@ -267,14 +269,14 @@
         <div class="post-header main-content-wrap text-left">
     
         <h1 class="post-title">
-            Hello World
+            Git常用远程操作
         </h1>
     
     
         <div class="post-meta">
-    <time datetime="2019-07-10T19:38:25+08:00">
+    <time datetime="2012-01-03T16:29:29+08:00">
 	
-		    7月 10, 2019
+		    1月 03, 2012
     	
     </time>
     
@@ -286,19 +288,73 @@
     
     <div class="post-content markdown">
         <div class="main-content-wrap">
-            <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
+            <h4 id="Git常用远程操作"><a href="#Git常用远程操作" class="headerlink" title="Git常用远程操作"></a>Git常用远程操作</h4><p>在对Git远程操作命令理解之前，首先看下图，该图可以直观地帮助我们理解各操作命令执行后所影响的区域。</p>
+<blockquote>
+<p>本文假设你对git的常规概念如：工作区（workspace），索引区（index）,本地仓库（local repository）和远程仓库（remote repository）都已经有了初步的了解。</p>
+</blockquote>
+<p><img src="http://image.beekka.com/blog/2014/bg2014061202.jpg" alt="Git"></p>
+<h3 id="git-clone"><a href="#git-clone" class="headerlink" title="git clone"></a>git clone</h3><p>该命令用于克隆一个远程仓库到本地文件。</p>
+<blockquote>
+<p>$ git clone <a href="https://github.com/bafeimao/pages1" target="_blank" rel="noopener">https://github.com/bafeimao/pages1</a><br>该命令会在本地自动创建文件夹<code>pages1</code></p>
+</blockquote>
+<p>也可以指定要克隆到的本地文件夹名</p>
+<blockquote>
+<p>$ git clone <a href="https://github.com/bafeimao/pages1" target="_blank" rel="noopener">https://github.com/bafeimao/pages1</a> blog</p>
+</blockquote>
+<p>可以提供多种协议访问方式，例如，github上提供如下三种常见的协议：</p>
+<blockquote>
+<p>$ git clone <a href="https://github.com/bafeimao/pages1" target="_blank" rel="noopener">https://github.com/bafeimao/pages1</a><br>$ git clone <a href="mailto:git@github.com" target="_blank" rel="noopener">git@github.com</a>:bafeimao/pages1.git</p>
+</blockquote>
+<h3 id="git-remote"><a href="#git-remote" class="headerlink" title="git remote"></a>git remote</h3><p>要想对远程仓库进行管理，首先要使用<code>remote add</code>命令添加一个远程仓库对应的名称（其他命令如：<code>git pull</code>,<code>git push</code>等操作都将依赖于该远程仓库名 ）</p>
+<p>添加一个远程仓库(需要指定一个名称和仓库的具体地址)</p>
+<blockquote>
+<p>$ git remote add origin <a href="mailto:git@github.com" target="_blank" rel="noopener">git@github.com</a>:bafeimao/pages1.git</p>
+</blockquote>
+<p> 查看当前已经添加过的所有远程仓库列表</p>
+<blockquote>
+<p>$ git remote<br>origin</p>
+</blockquote>
+<p>使用-v选项可以看到更具体的名称和远程仓库URL</p>
+<blockquote>
+<p>$ git remote -v<br>origin    <a href="mailto:git@github.com" target="_blank" rel="noopener">git@github.com</a>:bafeimao/coconut-projects.git (fetch)<br>origin    <a href="mailto:git@github.com" target="_blank" rel="noopener">git@github.com</a>:bafeimao/coconut-projects.git (push)</p>
+</blockquote>
+<h3 id="git-fetch"><a href="#git-fetch" class="headerlink" title="git fetch"></a>git fetch</h3><p>成功添加远程仓库后，一旦远程仓库有更新，我就可以使用<code>fetch</code>命令将远程更改取回到本地仓库， 注意：这里是将更改取到本地仓库（local repository）而非本地工作区(workspace)，详见参考图）</p>
+<blockquote>
+<p>$ git fetch origin</p>
+</blockquote>
+<p>默认取回所有分支的更改，可以指定只获取具体分支的更改</p>
+<blockquote>
+<p>$ git fetch origin dev</p>
+</blockquote>
+<h3 id="git-pull"><a href="#git-pull" class="headerlink" title="git pull"></a>git pull</h3><p>根据上图，也可以直接将远程的某个分支的更改取回到工作区（workspace）中的指定分支上，这就要用到<code>git pull</code>命令了，该命令的基本用法如下:</p>
+<p><code>$ git pull [&lt;remote-repo&gt; [&lt;remote-branch&gt;[:&lt;local-branch&gt;]]]</code></p>
+<p>将远程仓库master分支上的更改合并到本地工作区的dev分支</p>
+<blockquote>
+<p>$ git pull origin master:dev</p>
+<p>冒号后面的本地分支名可以省略，省略时表示合并到当前工作分支:<br>$ git pull origin master</p>
+</blockquote>
+<h3 id="git-push"><a href="#git-push" class="headerlink" title="git push"></a>git push</h3><p>如果需要将本地仓库的更改提交到远程，就需要使用<code>git push</code>命令，该命令的基本用法如下：</p>
+<p><code>$ git push [&lt;remote-repo&gt; [&lt;local-branch&gt;[:&lt;remote-branch&gt;]]]</code></p>
+<p>将本地dev分支推送到远程dev分支</p>
+<blockquote>
+<p>$ git push origin dev:dev</p>
+</blockquote>
+<p>另外可以设定当前工作分支（假设为dev）的upstream分支（即对应的远程分支），这样设定以后，在执行push时可以省略<code>本地分支名：远程分支名</code>，甚至远程仓库名称origin也可以省略</p>
+<blockquote>
+<p>$ git push –set-upstream origin dev</p>
+</blockquote>
+<p>此时可以省略分支名</p>
+<blockquote>
+<p>$ git push origin</p>
+</blockquote>
+<p>甚至连origin都可以省略</p>
+<blockquote>
+<p>$ git push</p>
+</blockquote>
+<p><strong>注意</strong>：如果指定的远程分支不存在，则会在远程自动创建 </p>
+<p>如果没有指定本地分支名则表示删除远程分支，下面两种方式均执行删除远程分支dev</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ git push origin :dev </span><br><span class="line">$ git push origin --delete dev</span><br></pre></td></tr></table></figure>
 
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>
 
             
 
@@ -316,9 +372,9 @@
                     
                 <a
                     class="post-action-btn btn btn--default tooltip--top"
-                    href="/laogu.io/2019/07/10/post-title-with-whitespace/"
-                    data-tooltip="post title with whitespace"
-                    aria-label="上一篇: post title with whitespace"
+                    href="/laogu.io/2012/07/25/ipvs-based-load-balance-in-detail/"
+                    data-tooltip="基于IPVS的IP负载均衡技术"
+                    aria-label="上一篇: 基于IPVS的IP负载均衡技术"
                 >
                     
                         <i class="fa fa-angle-left" aria-hidden="true"></i>
@@ -343,7 +399,7 @@
             <a
                 class="post-action-btn btn btn--default btn-open-shareoptions"
                 href="#btn-open-shareoptions"
-                aria-label="Share this post"
+                aria-label="Diesen Beitrag teilen"
             >
                 <i class="fa fa-share-alt" aria-hidden="true"></i>
             </a>
@@ -354,7 +410,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://gukt.github.io/laogu.io/2019/07/10/hello-world/"
+                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://gukt.github.io/laogu.io/2012/01/03/how-to-use-git-remote-commands/"
                     title="分享到 Facebook"
                     aria-label="分享到 Facebook"
                 >
@@ -367,7 +423,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://twitter.com/intent/tweet?text=http://gukt.github.io/laogu.io/2019/07/10/hello-world/"
+                    target="new" href="https://twitter.com/intent/tweet?text=http://gukt.github.io/laogu.io/2012/01/03/how-to-use-git-remote-commands/"
                     title="分享到 Twitter"
                     aria-label="分享到 Twitter"
                 >
@@ -380,7 +436,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://plus.google.com/share?url=http://gukt.github.io/laogu.io/2019/07/10/hello-world/"
+                    target="new" href="https://plus.google.com/share?url=http://gukt.github.io/laogu.io/2012/01/03/how-to-use-git-remote-commands/"
                     title="分享到 Google+"
                     aria-label="分享到 Google+"
                 >
@@ -393,7 +449,7 @@
         
         <li class="post-action">
             
-                <a class="post-action-btn btn btn--default" href="#" aria-label="Back to top">
+                <a class="post-action-btn btn btn--default" href="#" aria-label="Nach oben">
             
                 <i class="fa fa-list" aria-hidden="true"></i>
             </a>
@@ -428,9 +484,9 @@
                     
                 <a
                     class="post-action-btn btn btn--default tooltip--top"
-                    href="/laogu.io/2019/07/10/post-title-with-whitespace/"
-                    data-tooltip="post title with whitespace"
-                    aria-label="上一篇: post title with whitespace"
+                    href="/laogu.io/2012/07/25/ipvs-based-load-balance-in-detail/"
+                    data-tooltip="基于IPVS的IP负载均衡技术"
+                    aria-label="上一篇: 基于IPVS的IP负载均衡技术"
                 >
                     
                         <i class="fa fa-angle-left" aria-hidden="true"></i>
@@ -455,7 +511,7 @@
             <a
                 class="post-action-btn btn btn--default btn-open-shareoptions"
                 href="#btn-open-shareoptions"
-                aria-label="Share this post"
+                aria-label="Diesen Beitrag teilen"
             >
                 <i class="fa fa-share-alt" aria-hidden="true"></i>
             </a>
@@ -466,7 +522,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://gukt.github.io/laogu.io/2019/07/10/hello-world/"
+                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://gukt.github.io/laogu.io/2012/01/03/how-to-use-git-remote-commands/"
                     title="分享到 Facebook"
                     aria-label="分享到 Facebook"
                 >
@@ -479,7 +535,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://twitter.com/intent/tweet?text=http://gukt.github.io/laogu.io/2019/07/10/hello-world/"
+                    target="new" href="https://twitter.com/intent/tweet?text=http://gukt.github.io/laogu.io/2012/01/03/how-to-use-git-remote-commands/"
                     title="分享到 Twitter"
                     aria-label="分享到 Twitter"
                 >
@@ -492,7 +548,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://plus.google.com/share?url=http://gukt.github.io/laogu.io/2019/07/10/hello-world/"
+                    target="new" href="https://plus.google.com/share?url=http://gukt.github.io/laogu.io/2012/01/03/how-to-use-git-remote-commands/"
                     title="分享到 Google+"
                     aria-label="分享到 Google+"
                 >
@@ -505,7 +561,7 @@
         
         <li class="post-action">
             
-                <a class="post-action-btn btn btn--default" href="#" aria-label="Back to top">
+                <a class="post-action-btn btn btn--default" href="#" aria-label="Nach oben">
             
                 <i class="fa fa-list" aria-hidden="true"></i>
             </a>
@@ -526,7 +582,7 @@
                     <a
                         class="share-option-btn"
                         target="new"
-                        href="https://www.facebook.com/sharer/sharer.php?u=http://gukt.github.io/laogu.io/2019/07/10/hello-world/"
+                        href="https://www.facebook.com/sharer/sharer.php?u=http://gukt.github.io/laogu.io/2012/01/03/how-to-use-git-remote-commands/"
                         aria-label="分享到 Facebook"
                     >
                         <i class="fab fa-facebook" aria-hidden="true"></i><span>分享到 Facebook</span>
@@ -539,7 +595,7 @@
                     <a
                         class="share-option-btn"
                         target="new"
-                        href="https://twitter.com/intent/tweet?text=http://gukt.github.io/laogu.io/2019/07/10/hello-world/"
+                        href="https://twitter.com/intent/tweet?text=http://gukt.github.io/laogu.io/2012/01/03/how-to-use-git-remote-commands/"
                         aria-label="分享到 Twitter"
                     >
                         <i class="fab fa-twitter" aria-hidden="true"></i><span>分享到 Twitter</span>
@@ -552,7 +608,7 @@
                     <a
                         class="share-option-btn"
                         target="new"
-                        href="https://plus.google.com/share?url=http://gukt.github.io/laogu.io/2019/07/10/hello-world/"
+                        href="https://plus.google.com/share?url=http://gukt.github.io/laogu.io/2012/01/03/how-to-use-git-remote-commands/"
                         aria-label="分享到 Google+"
                     >
                         <i class="fab fa-google-plus" aria-hidden="true"></i><span>分享到 Google+</span>

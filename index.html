@@ -268,17 +268,17 @@
                     
                         <a
                             class="link-unstyled"
-                            href="/laogu.io/2019/07/10/post-title-with-whitespace/"
-                            aria-label=": post title with whitespace"
+                            href="/laogu.io/2015/09/25/web-load-balance-technologies-in-detail/"
+                            aria-label=": 常见的Web负载均衡技术详解"
                         >
-                            post title with whitespace
+                            常见的Web负载均衡技术详解
                         </a>
                     
                 </h1>
                 <div class="postShorten-meta">
-    <time datetime="2019-07-10T19:47:15+08:00">
+    <time datetime="2015-09-25T23:51:01+08:00">
 	
-		    7月 10, 2019
+		    9月 25, 2015
     	
     </time>
     
@@ -287,7 +287,100 @@
             </div>
             
                 <div class="postShorten-content">
-                    
+                    <h3 id="1-基于镜像站点的负载均衡"><a href="#1-基于镜像站点的负载均衡" class="headerlink" title="1. 基于镜像站点的负载均衡"></a>1. 基于镜像站点的负载均衡</h3><p>最早的负载均衡技术可以追溯到古老的镜像站点技术，其本质是制作多个站点的拷贝（镜像），然后在网页上提供站点列表，供用户选择，从而达到分流负载的目的。该技术现在仍然被一些如下载站点使用。</p>
+<h4 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h4><p>该方案最大的特点就是简单；服务端不需要特别的技术支持，只要克隆多个站点即可，制作镜像本质上是文件的同步，因为它更加适合用在静态网站上。</p>
+<h3 id="2-基于HTTP重定向的负载均衡"><a href="#2-基于HTTP重定向的负载均衡" class="headerlink" title="2. 基于HTTP重定向的负载均衡"></a>2. 基于HTTP重定向的负载均衡</h3><h4 id="什么是HTTP重定向"><a href="#什么是HTTP重定向" class="headerlink" title="什么是HTTP重定向"></a>什么是HTTP重定向</h4><blockquote>
+<p>HTTP重定向是HTTP代理（如浏览器）与Web服务器共同实现的。服务器通过返回302状态码，以及在HTTP响应的Header中添加Location=url，HTTP代理收到该重定向响应后重新请求location指示的地址，这样就完成了一次HTTP重定向</p>
+</blockquote>
+<p>HTTP重定向的机制可以用来做负载均衡，具体的调度算法由服务器实现，可以根据地域就近原则，或简单的轮询（Round Robin）或其他调度算法，从而达到将负载分发到多个后端服务器的目的。</p>
+<p>HTTP重定向类似于“镜像站点负载均衡”，其最大的不同是：镜像站点是让用户选择的，而HTTP重定向的路由调度是由Web服务端的代码逻辑实现的。</p>
+<h4 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h4><ul>
+<li>实现简单，由一小段代码即可实现完成简单的调度分发</li>
+<li>调度灵活自由，因为调度算法是自己实现的</li>
+</ul>
+<h4 id="存在的问题"><a href="#存在的问题" class="headerlink" title="存在的问题"></a>存在的问题</h4><ul>
+<li>伸缩性不好，集群中增减主机往往需要修改代码（或服务器列表配置文件），这可能会导致重新部署（虽然这也可以通过代码来解决）</li>
+<li>如果重定向后的页面被客户端收藏，此后的请求就一直由那台机器提供服务，这将导致之前制定的负载分发策略失效，也不能实现“故障转移”。</li>
+<li>集群的最大吞吐量受到负载均衡器性能的制约</li>
+<li>对搜索引擎不友好，搜索引擎对HTTP重定向经常判定为作弊</li>
+<li>请求需要两个往返才可以完成，因此效率不高。</li>
+</ul>
+<h3 id="3-基于DNS轮询的负载均衡"><a href="#3-基于DNS轮询的负载均衡" class="headerlink" title="3. 基于DNS轮询的负载均衡"></a>3. 基于DNS轮询的负载均衡</h3><p>DNS服务器可以针对某个域名添加多个A纪录，比如A1，A2，A3，当客户端每次访问DNS服务器让其解析域名对应的IP地址时，DNS服务器会依次从事先添加的A记录中返回，从而达到负载依次被分发到A1，A2，A3地址所对应的服务器进行处理，该策略最大的优点也是简单，但它同样也存在一些问题。</p>
+<h4 id="存在的问题-1"><a href="#存在的问题-1" class="headerlink" title="存在的问题"></a>存在的问题</h4><ul>
+<li><p><strong>浪费公网IP地址</strong><br>每个A记录对应的IP地址都是要事先准备好的，而且必须是外网地址，我们知道，在互联网上，IPv4地址已经相当紧张</p>
+</li>
+<li><p><strong>并不一定能实现预期的均等</strong><br>因为HTTP代理（比如浏览器或各种代理服务器）会缓存DNS的解析结果，在DNS缓存没有失效之前，客户端都不会再请求DNS服务器。</p>
+</li>
+<li><p><strong>不能感知Web服务器的健康状况</strong><br>DNS服务器只是机械地轮流解析，它才不管某台机器负载已经很重，甚至某台机器已经挂掉了，它仍然会将负载分流到这些已经坏了的机器，导致无法提供服务的情况。</p>
+</li>
+<li><p><strong>难以实现故障转移</strong><br>如果发现之前添加到DNS服务器中的某台机器发生了故障，这个时候最理想的期望是立即从DNS服务器的A纪录中拿掉这台发生故障的主机记录，但是这往往很难实现，这是因为：</p>
+</li>
+</ul>
+<ol>
+<li><p>由于客户端DNS解析缓存的存在，在TTL没有过期之前，客户端仍然会一直请求故障机</p>
+</li>
+<li><p>鉴于上门所说的，DNS不能及时感知Web服务器的健康状况，一旦机器故障，我们能做的只是人工去修改DNS映射，但是这种更新往往又不能立即生效，因此会造成较长时间的不能提供服务。</p>
+</li>
+</ol>
+<ul>
+<li><strong>灵活性不够</strong><br>基于DNS的负载分发工作在DNS层面，而像HTTP重定向是基于HTTP应用层的，因此对于前者来说，如果需要提供更多的调度策略往往比较难，而对于后者，可以基于更多的场景来实现更丰富的调度逻辑，比如：基于地域，基于IP，基于不同的URL模式等。</li>
+</ul>
+<p>实际上，该方案可用于小型网站的负载分发，而在大型网站往往只是部分采用，大型网站往往采用“层级负载均衡方案”，即先配置使用DNS轮询，完成域名对多个IP的解析，添加的A记录对应于多个对外服务的负载均衡器，请求达到每个负载均衡器后，再由负载均衡器对请求进行再调度。</p>
+<h3 id="4-基于IP的负载均衡"><a href="#4-基于IP的负载均衡" class="headerlink" title="4. 基于IP的负载均衡"></a>4. 基于IP的负载均衡</h3><p>IP负载均技术是工作在四层（网络层）的使用最广的负载均衡技术，它是在操作系统的内核进程中对请求进行转发的，因此相比其他负载均衡技术（如反向代理负载均衡）它的效率更高。</p>
+<p>该技术提供三种模式：</p>
+<h4 id="VS-NAT（网络地址转换）"><a href="#VS-NAT（网络地址转换）" class="headerlink" title="VS/NAT（网络地址转换）"></a>VS/NAT（网络地址转换）</h4><h5 id="处理流程"><a href="#处理流程" class="headerlink" title="处理流程"></a>处理流程</h5><ul>
+<li>负载均衡器收到来自客户端的请求报文</li>
+<li>通过调度算法得到一台真实服务器</li>
+<li>修改请求报文中的“目标IP地址”和“目标端口”为刚刚得到的真实机器的IP和端口</li>
+<li>将该请求报文转发给真实服务器去处理</li>
+<li>真实服务器处理完后，将响应报文发给负载均衡器</li>
+<li>负载均衡器将响应报文中的“源IP地址”和“源端口”再次改为VIP（提供对外服务的虚拟IP）</li>
+<li>将响应报文发回客户端</li>
+</ul>
+<h5 id="优缺点-1"><a href="#优缺点-1" class="headerlink" title="优缺点"></a>优缺点</h5><ul>
+<li>负载均衡器需要对请求报文修改一次，然后还要对响应报文再一次修改</li>
+<li>响应报文必须再次经过负载均衡器，因此负载均衡器负担加重</li>
+<li>响应报文往往比请求报文大很多，如果响应报文如果也经过负载均衡器，那么负载均衡器的网卡带宽将会是一个瓶颈</li>
+</ul>
+<h4 id="VS-DR（直接服务器路由）"><a href="#VS-DR（直接服务器路由）" class="headerlink" title="VS/DR（直接服务器路由）"></a>VS/DR（直接服务器路由）</h4><p>VS/DR是使用最广的一种模式，它的处理流程比VS/NAT简单高效</p>
+<h5 id="处理流程-1"><a href="#处理流程-1" class="headerlink" title="处理流程"></a>处理流程</h5><ul>
+<li>负载均衡器收到客户端请求</li>
+<li>通过调度算法得到一台真实服务器</li>
+<li>负载均衡器<strong>对请求不做任何修改</strong>，将其直接转发给真实服务器</li>
+<li>真实服务器处理完成后<strong>不用将响应报文发回到负载均衡器</strong>，而是直接发回客户端</li>
+</ul>
+<h5 id="优点-1"><a href="#优点-1" class="headerlink" title="优点"></a>优点</h5><ul>
+<li>调度效率高，负载均衡器不用修改请求报文</li>
+<li>响应报文不用发回负载均衡器，因此大大提高了负载均衡器的吞吐率</li>
+<li>集群吞吐率只取决于负载军器的入口带宽以及集群的出口带宽</li>
+</ul>
+<h4 id="VS-TUN（IP隧道）"><a href="#VS-TUN（IP隧道）" class="headerlink" title="VS/TUN（IP隧道）"></a>VS/TUN（IP隧道）</h4><p>该模式应用的不多，所以不做详细介绍，具体请参加<a href="http://www.linuxvirtualserver.org/zh/lvs3.html#4" target="_blank" rel="noopener">这里</a></p>
+<blockquote>
+<p>最常用的是VS/DR模式，它最高效而且配置简单，关于”IP负载均衡技术”的详细介绍，请参考<a href="http://www.linuxvirtualserver.org/zh/index.html" target="_blank" rel="noopener">官方文档</a></p>
+</blockquote>
+<h3 id="5-基于反向代理的负载均衡"><a href="#5-基于反向代理的负载均衡" class="headerlink" title="5. 基于反向代理的负载均衡"></a>5. 基于反向代理的负载均衡</h3><p>反向代理服务器是挡在真实服务器前面的服务器，用以隐藏后端的真实服务器，缓存部分请求内容，当然了，也可以作为负载均衡器使用</p>
+<p>它的核心工作是转发HTTP请求（区别于HTTP重定向是‘转移’而非’转发’）。反向代理服务器可以配置各种灵活的规则实现对请求的转移。</p>
+<h4 id="优点-2"><a href="#优点-2" class="headerlink" title="优点"></a>优点</h4><ul>
+<li><p>有些反向代理服务器可以监控后端服务器组的多方面状态，这使得我们能够更加精细化的控制负载调度。</p>
+<blockquote>
+<p>比如Varnish，使用它作为负载均衡器，可以监控后端服务器的很多方面，比如:系统负载，响应时间，是否可用，TCP连接，流量等性能参数。</p>
+</blockquote>
+</li>
+<li><p>它工作在应用层的，因此相比于IP负载均衡技术而言，它可以提供更加完善的基于HTTP内容的调度策略，比如：</p>
+<ul>
+<li>根据IP地址进行黑白名单过滤</li>
+<li>可以实现地址重定向（如：/foo/bar指向到foo?id=bar）</li>
+<li>根据HTTP头中的User-Agent对搜索引擎爬虫的访问进行控制</li>
+</ul>
+</li>
+</ul>
+<h4 id="存在的问题-2"><a href="#存在的问题-2" class="headerlink" title="存在的问题"></a>存在的问题</h4><ul>
+<li>和基于IP负载均衡技术相比，效率不高</li>
+<li>所有HTTP请求都要经过反向代理服务器，因此它容易成为集群新的瓶颈，当成为瓶颈后，增加再多的分流节点也无济于事。</li>
+</ul>
+<blockquote>
+<h4 id="声明：转载请注明出处"><a href="#声明：转载请注明出处" class="headerlink" title="声明：转载请注明出处"></a>声明：转载请注明出处</h4></blockquote>
+
                     
                         
 
@@ -296,7 +389,7 @@
                     
                         <p>
                             <a
-                                href="/laogu.io/2019/07/10/post-title-with-whitespace/#post-footer"
+                                href="/laogu.io/2015/09/25/web-load-balance-technologies-in-detail/#post-footer"
                                 class="postShorten-excerpt_link link"
                                 aria-label=""
                             >
@@ -307,16 +400,6 @@
                 </div>
             
         </div>
-        
-            <a
-                href="/laogu.io/2019/07/10/post-title-with-whitespace/"
-                aria-label=": post title with whitespace"
-            >
-                <div class="postShorten-thumbnailimg">
-                    <img alt="" src=""/>
-                </div>
-            </a>
-            
         
     </article>
     
@@ -329,17 +412,17 @@
                     
                         <a
                             class="link-unstyled"
-                            href="/laogu.io/2019/07/10/hello-world/"
-                            aria-label=": Hello World"
+                            href="/laogu.io/2015/09/25/ssh-login-without-password-configuration/"
+                            aria-label=": 配置SSH无密码登陆"
                         >
-                            Hello World
+                            配置SSH无密码登陆
                         </a>
                     
                 </h1>
                 <div class="postShorten-meta">
-    <time datetime="2019-07-10T19:38:25+08:00">
+    <time datetime="2015-09-25T23:19:08+08:00">
 	
-		    7月 10, 2019
+		    9月 25, 2015
     	
     </time>
     
@@ -348,19 +431,32 @@
             </div>
             
                 <div class="postShorten-content">
-                    <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
+                    <p>SSH(Secure Shell)是建立在应用层和传输层基础上的安全协议，利用 SSH 协议可以有效防止远程管理过程中的信息泄露问题，他提供两种方式的验证：</p>
+<ol>
+<li>基于口令的安全验证</li>
+<li>基于密钥的安全验证</li>
+</ol>
+<blockquote>
+<p>其中基于密钥的验证比基于账号口令的验证有更高的安全性而且更方便</p>
+</blockquote>
+<p>下文讲解配置基于密钥的安全验证，让我们可以无密码登陆远程主机。</p>
+<p>基本原理：</p>
+<blockquote>
+<p>假设我们需要从A机器上登陆远程主机B，我只需要在主机A上生成一对公钥和私钥，然后将公钥文件拷贝到主机B的authorized_keys中，这样A就可以无密码连接B了</p>
+</blockquote>
+<p>以下为操作步骤：</p>
+<p>###创建public/private Keys</p>
+<p>使用<code>$ ssh-keygen</code>命令可以创建公钥和私钥（在每个提示处一路回车）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">Generating public/private rsa key pair.</span><br><span class="line">Enter file in which to save the key (/root/.ssh/id_rsa): </span><br><span class="line">Created directory &apos;/root/.ssh&apos;.</span><br><span class="line">Enter passphrase (empty for no passphrase): </span><br><span class="line">Enter same passphrase again: </span><br><span class="line">Your identification has been saved in /root/.ssh/id_rsa.</span><br><span class="line">Your public key has been saved in /root/.ssh/id_rsa.pub.</span><br><span class="line">The key fingerprint is:</span><br><span class="line">5a:7c:2c:bf:6c:4a:a7:40:bb:eb:e8:4f:ac:91:9d:8c root@vm1</span><br><span class="line">The key&apos;s randomart image is:</span><br><span class="line">+--[ RSA 2048]----+</span><br><span class="line">|                 |</span><br><span class="line">|                 |</span><br><span class="line">|                 |</span><br><span class="line">|       . .       |</span><br><span class="line">|      . S o      |</span><br><span class="line">|     B = +       |</span><br><span class="line">|    E X . o      |</span><br><span class="line">|     = + +..     |</span><br><span class="line">|   .+o=.ooo      |</span><br><span class="line">+-----------------+</span><br></pre></td></tr></table></figure>
 
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+<p>生成成功，在<code>~/.ssh</code>目录下会生成·<code>id_rsa</code>和<code>id_rsa.pub</code>两个文件。</p>
+<p>###拷贝公钥到远程主机</p>
+<p><code>ssh-copy-id</code>命令用于拷贝公钥到远程主机的<code>.ssh/authorized_keys</code>文件中，过程中会提示输入一次密码。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ ssh-copy-id hadoop@vm2</span><br><span class="line">The authenticity of host &apos;vm2 (172.16.115.102)&apos; can&apos;t be established.</span><br><span class="line">RSA key fingerprint is 9c:43:77:79:08:1e:23:ec:3b:3b:ad:d0:a1:63:0c:e0.</span><br><span class="line">Are you sure you want to continue connecting (yes/no)? yes</span><br><span class="line">Warning: Permanently added &apos;vm2,172.16.115.102&apos; (RSA) to the list of known hosts.</span><br><span class="line">hadoop@vm2&apos;s password: </span><br><span class="line">Now try logging into the machine, with &quot;ssh &apos;hadoop@vm2&apos;&quot;, and check in:</span><br><span class="line"></span><br><span class="line">  .ssh/authorized_keys</span><br><span class="line"></span><br><span class="line">to make sure we haven&apos;t added extra keys that you weren&apos;t expecting.</span><br></pre></td></tr></table></figure>
 
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+<h3 id="验证无密码登陆"><a href="#验证无密码登陆" class="headerlink" title="验证无密码登陆"></a>验证无密码登陆</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ ssh hadoop@vm2</span><br><span class="line">[此处没有提示输入密码]</span><br></pre></td></tr></table></figure>
 
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>
+<p>##@see also:<br><a href="http://linuxconfig.org/passwordless-ssh" target="_blank" rel="noopener">http://linuxconfig.org/passwordless-ssh</a><a href="https://en.wikipedia.org/wiki/Ssh-agent" target="_blank" rel="noopener">enter link description here</a></p>
 
                     
                         
@@ -370,7 +466,7 @@
                     
                         <p>
                             <a
-                                href="/laogu.io/2019/07/10/hello-world/#post-footer"
+                                href="/laogu.io/2015/09/25/ssh-login-without-password-configuration/#post-footer"
                                 class="postShorten-excerpt_link link"
                                 aria-label=""
                             >
@@ -382,15 +478,484 @@
             
         </div>
         
-            <a
-                href="/laogu.io/2019/07/10/hello-world/"
-                aria-label=": Hello World"
-            >
-                <div class="postShorten-thumbnailimg">
-                    <img alt="" src=""/>
-                </div>
-            </a>
+    </article>
+    
+    
+    <article class="postShorten postShorten--thumbnailimg-bottom">
+        <div class="postShorten-wrap">
             
+            <div class="postShorten-header">
+                <h1 class="postShorten-title">
+                    
+                        <a
+                            class="link-unstyled"
+                            href="/laogu.io/2014/08/25/how-to-build-blog-on-github-by-hexo/"
+                            aria-label=": 使用Hexo在github上建立博客"
+                        >
+                            使用Hexo在github上建立博客
+                        </a>
+                    
+                </h1>
+                <div class="postShorten-meta">
+    <time datetime="2014-08-25T14:07:42+08:00">
+	
+		    8月 25, 2014
+    	
+    </time>
+    
+</div>
+
+            </div>
+            
+                <div class="postShorten-content">
+                    <h3 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h3><p>运行如下命令以完成初始化操作</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo init ~<span class="regexp">/blog &amp;&amp; cd ~/</span>blog &amp;&amp; cnpm install</span><br></pre></td></tr></table></figure>
+
+<p>成功执行后查看文件夹下的内容如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">total 24</span><br><span class="line">drwxr-xr-x   9 ktgu  staff   306  7 28 13:23 .</span><br><span class="line">drwxr-xr-x+ 66 ktgu  staff  2244  7 28 13:23 ..</span><br><span class="line">-rw-r--r--   1 ktgu  staff    65  7 28 13:23 .gitignore</span><br><span class="line">-rw-r--r--   1 ktgu  staff  1477  7 28 13:23 _config.yml</span><br><span class="line">drwxr-xr-x  12 ktgu  staff   408  7 28 13:24 node_modules</span><br><span class="line">-rw-r--r--   1 ktgu  staff   442  7 28 13:23 package.json</span><br><span class="line">drwxr-xr-x   5 ktgu  staff   170  7 28 13:23 scaffolds</span><br><span class="line">drwxr-xr-x   3 ktgu  staff   102  7 28 13:23 source</span><br><span class="line">drwxr-xr-x   3 ktgu  staff   102  7 28 13:23 themes</span><br></pre></td></tr></table></figure>
+
+<h3 id="生成文件"><a href="#生成文件" class="headerlink" title="生成文件"></a>生成文件</h3><p>Hexo生成文件速度非常快，使用如下命令即可生成文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br><span class="line">或者</span><br><span class="line">$ hexo g</span><br></pre></td></tr></table></figure>
+
+<h3 id="部署到github"><a href="#部署到github" class="headerlink" title="部署到github"></a>部署到github</h3><p>Hexo提供了便捷的一键部署功能，并且支持部署到多个目的地，如：Git，HeroKu，Rsync，OpenShift，FTPSync等。下面以部署到github为例：</p>
+<p>首先要安装hexo-deployer-git插件</p>
+<blockquote>
+<p>$ cnpm install hexo-deployer-git –save</p>
+</blockquote>
+<p>然后打开_config.yaml文件，修改如下配置：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">deploy:</span><br><span class="line">  type: git</span><br><span class="line">  repo: git@github.com:bafeimao/pages1.git</span><br><span class="line">  branch: gh-pages</span><br></pre></td></tr></table></figure>
+
+<p>然后执行生成并部署</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ hexo g &amp;&amp; hexo d</span><br><span class="line">或者</span><br><span class="line">$ hexo g --deploy</span><br><span class="line">或者</span><br><span class="line">$ hexo d --generate</span><br></pre></td></tr></table></figure>
+
+<p>若成功部署，会看到如下信息：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">To git@github.com:bafeimao/pages.git</span><br><span class="line">* [new branch]      master -&gt; gh-pages</span><br><span class="line">Branch master set up to track remote branch gh-pages from git@github.com:bafeimao/pages.git.</span><br><span class="line">INFO  Deploy done: git</span><br></pre></td></tr></table></figure>
+
+<p><strong>注意</strong>：如部署失败，默认不显示任何错误信息，你可以加上–debug参数查看详情</p>
+<blockquote>
+<p>$ hexo d –debug</p>
+</blockquote>
+<p>最后，打开github博客验证是否成功部署：</p>
+<p><code>http://{github-user-name}.github.io/{repo-name}</code></p>
+<p>比如我的博客：<a href="http://bafeimao.github.io/gh-pages/" target="_blank" rel="noopener">http://bafeimao.github.io/gh-pages/</a></p>
+
+                    
+                        
+
+
+                    
+                    
+                        <p>
+                            <a
+                                href="/laogu.io/2014/08/25/how-to-build-blog-on-github-by-hexo/#post-footer"
+                                class="postShorten-excerpt_link link"
+                                aria-label=""
+                            >
+                                评论和共享
+                            </a>
+                        </p>
+                    
+                </div>
+            
+        </div>
+        
+    </article>
+    
+    
+    <article class="postShorten postShorten--thumbnailimg-bottom">
+        <div class="postShorten-wrap">
+            
+            <div class="postShorten-header">
+                <h1 class="postShorten-title">
+                    
+                        <a
+                            class="link-unstyled"
+                            href="/laogu.io/2013/05/25/tomcat-oom-permgen-solution/"
+                            aria-label=": Tomcat发生java.lang.OutOfMemoryError: PermGen space的解决方案"
+                        >
+                            Tomcat发生java.lang.OutOfMemoryError: PermGen space的解决方案
+                        </a>
+                    
+                </h1>
+                <div class="postShorten-meta">
+    <time datetime="2013-05-25T22:59:35+08:00">
+	
+		    5月 25, 2013
+    	
+    </time>
+    
+        <span>发布在 </span>
+        
+    <a class="category-link" href="/laogu.io/categories/aaa/">aaa</a>
+
+
+    
+</div>
+
+            </div>
+            
+                <div class="postShorten-content">
+                    <p>产生该问题的主要原因是JVM永久带空间不足导致的，可以在环境变量CATALINA_OPTS中提高MaxPermSize参数值</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">set CATALINA_OPTS = -XX:PermSize=128m -XX:MaxPermSize=512m</span><br></pre></td></tr></table></figure>
+
+<p>如果是堆栈溢出,则需要提高xms的值</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">set CATALINA_OPTS = -Xms128m -Xmx1024m -XX:PermSize=128m -XX:MaxPermSize=512m</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="参数解释"><a href="#参数解释" class="headerlink" title="参数解释:"></a>参数解释:</h3><blockquote>
+<p>-xms128：表示JVM初始堆栈大小<br>-xmx1024：表示JVM堆栈大小最大可以达到1M内存<br>-XX:PermSize=128m：表示初始永久带内存大小<br>-XX:MaxPermSize=512m：表示永久带最大内存大小</p>
+</blockquote>
+<h3 id="为什么设置CATALINA-OPTS就会生效？"><a href="#为什么设置CATALINA-OPTS就会生效？" class="headerlink" title="为什么设置CATALINA_OPTS就会生效？"></a>为什么设置CATALINA_OPTS就会生效？</h3><p>因为在tomcat启动时会使用环境变量：JAVA_OPTS，CATALINA_OPTS, DEBUG_OPTS指定的值，查看%CATALINA_HOME%/bin/catalina.sh文件可以看到如下的代码段：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%_EXECJAVA% %JAVA_OPTS% %CATALINA_OPTS% %DEBUG_OPTS% -Djava.endorsed.dirs=&quot;%JAVA_ENDORSED_DIRS%&quot; -classpath &quot;%CLASSPATH%&quot; -Dcatalina.base=&quot;%CATALINA_BASE%&quot; -Dcatalina.home=&quot;%CATALINA_HOME%&quot; -Djava.io.tmpdir=&quot;%CATALINA_TMPDIR%&quot; %MAINCLASS% %CMD_LINE_ARGS% %ACTION%</span><br></pre></td></tr></table></figure>
+                    
+                        
+
+
+                    
+                    
+                        <p>
+                            <a
+                                href="/laogu.io/2013/05/25/tomcat-oom-permgen-solution/#post-footer"
+                                class="postShorten-excerpt_link link"
+                                aria-label=""
+                            >
+                                评论和共享
+                            </a>
+                        </p>
+                    
+                </div>
+            
+        </div>
+        
+    </article>
+    
+    
+    <article class="postShorten postShorten--thumbnailimg-bottom">
+        <div class="postShorten-wrap">
+            
+            <div class="postShorten-header">
+                <h1 class="postShorten-title">
+                    
+                        <a
+                            class="link-unstyled"
+                            href="/laogu.io/2013/02/26/setup-svn-server-on-linux/"
+                            aria-label=": 在linux上搭建svn服务器"
+                        >
+                            在linux上搭建svn服务器
+                        </a>
+                    
+                </h1>
+                <div class="postShorten-meta">
+    <time datetime="2013-02-26T08:40:53+08:00">
+	
+		    2月 26, 2013
+    	
+    </time>
+    
+</div>
+
+            </div>
+            
+                <div class="postShorten-content">
+                    <h3 id="创建svn仓库根目录"><a href="#创建svn仓库根目录" class="headerlink" title="创建svn仓库根目录"></a>创建svn仓库根目录</h3><p>在创建代码仓库之前，我们需要创建一个svn仓库根目录，以后所有的代码仓库都是在这个根目录下创建</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ mkdir ~/.svn</span><br></pre></td></tr></table></figure>
+
+<h3 id="创建仓库"><a href="#创建仓库" class="headerlink" title="创建仓库"></a>创建仓库</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ svnadmin create ~/.svn/coconut</span><br></pre></td></tr></table></figure>
+
+<p>成功创建后，会在coconut目录下生成一些文件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ cd ~/.svn/coconut</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ ls -l</span><br><span class="line">total 16</span><br><span class="line">-rw-r--r--   1 ktgu  staff  229  7 31 17:28 README.txt</span><br><span class="line">drwxr-xr-x   5 ktgu  staff  170  7 31 17:28 conf</span><br><span class="line">drwxr-sr-x  15 ktgu  staff  510  7 31 17:28 db</span><br><span class="line">-r--r--r--   1 ktgu  staff    2  7 31 17:28 format</span><br><span class="line">drwxr-xr-x  11 ktgu  staff  374  7 31 17:28 hooks</span><br><span class="line">drwxr-xr-x   4 ktgu  staff  136  7 31 17:28 locks</span><br></pre></td></tr></table></figure>
+
+<h3 id="设置访问策略"><a href="#设置访问策略" class="headerlink" title="设置访问策略"></a>设置访问策略</h3><p>进入conf目录，编辑svnserve.conf文件（移除行首<code>#</code>并顶格）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">password-db = passwd</span><br></pre></td></tr></table></figure>
+
+<p>你也许需要配置匿名用户的访问权限（移除行首<code>#</code>并顶格）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">anon-access = read</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>如果你需要任何人都可以提交更改，则将read改为<code>write</code>，如果不希望匿名用户可以访问，则将read改为<code>none</code>。建议将改行改为<code>none</code></p>
+</blockquote>
+<p>另外，移除下面两行前面的<code>#</code>并顶格，以便设置用户以及访问权限等</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">password-db = passwd</span><br><span class="line">authz-db = authz</span><br></pre></td></tr></table></figure>
+
+<p>现在，打开passwd文件，配置用户</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"> ...</span><br><span class="line">[users]</span><br><span class="line">dev1 = aaa</span><br><span class="line">dev2 = aaa</span><br></pre></td></tr></table></figure>
+
+<p>上面的配置表示：添加了两个用户dev1，dev2，密码都是aaa。</p>
+<p>配置authz，在[groups]下定义用户组，多个用户之间用逗号隔开</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[groups]</span><br><span class="line">dev = dev1,dev2</span><br></pre></td></tr></table></figure>
+
+<p>然后可以对版本库设置不同的访问权限</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[/]</span><br><span class="line">@dev=rm</span><br></pre></td></tr></table></figure>
+
+<p>以上表示：让<code>dev</code>用户组对版本库的所有路径都拥有读写（<code>rw</code>）权限</p>
+<h3 id="启动svn服务器"><a href="#启动svn服务器" class="headerlink" title="启动svn服务器"></a>启动svn服务器</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ svnserve -d -r ~/.svn/</span><br></pre></td></tr></table></figure>
+
+<p>没有提示表示成功（Linux中没有提示就是最好的提示）</p>
+<h3 id="停止svn服务器"><a href="#停止svn服务器" class="headerlink" title="停止svn服务器"></a>停止svn服务器</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ killall svnserve</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="测试正常运行"><a href="#测试正常运行" class="headerlink" title="测试正常运行"></a>测试正常运行</h3><p>如果以下命令可以正常运行，说明配置成功</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ svn checkout svn://127.0.0.1/coconut/ ~/coconut</span><br></pre></td></tr></table></figure>
+
+<p>以上命令首次运行会提示输入用户名和密码（使用在passwd中配置的用户名和密码即可）</p>
+<p>或者可以在运行<code>svn checkout</code>命令时指定用户名和密码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$svn checkout svn://127.0.0.1/coconut --username=dev1 --password=aaa ~/coconut</span><br></pre></td></tr></table></figure>
+
+
+                    
+                        
+
+
+                    
+                    
+                        <p>
+                            <a
+                                href="/laogu.io/2013/02/26/setup-svn-server-on-linux/#post-footer"
+                                class="postShorten-excerpt_link link"
+                                aria-label=""
+                            >
+                                评论和共享
+                            </a>
+                        </p>
+                    
+                </div>
+            
+        </div>
+        
+    </article>
+    
+    
+    <article class="postShorten postShorten--thumbnailimg-bottom">
+        <div class="postShorten-wrap">
+            
+            <div class="postShorten-header">
+                <h1 class="postShorten-title">
+                    
+                        <a
+                            class="link-unstyled"
+                            href="/laogu.io/2012/07/25/ipvs-based-load-balance-in-detail/"
+                            aria-label=": 基于IPVS的IP负载均衡技术"
+                        >
+                            基于IPVS的IP负载均衡技术
+                        </a>
+                    
+                </h1>
+                <div class="postShorten-meta">
+    <time datetime="2012-07-25T23:58:46+08:00">
+	
+		    7月 25, 2012
+    	
+    </time>
+    
+</div>
+
+            </div>
+            
+                <div class="postShorten-content">
+                    <p>随着互联网的高速发展，应用规模日益膨胀，越来越多的应用面临大流量，高并发的压力，因此大型互联网应用开始对构建高可用，高可扩展，不间断的服务提出了更高的要求。为应对大规模高并发的要求，分布式集群以及负载均衡等技术应运而生，本文主要讲解基于IP的负载均衡技术。</p>
+<blockquote>
+<p>IP负载均衡技术工作在IP层，并且在运行在操作系统内核中，相比于其他工作在应用层（如HTTP层）的负载均衡技术（如：HTTP重定向负载均衡，反向代理负载均衡）而言，它的分发效率是最高的。</p>
+</blockquote>
+<p>先说明几个重要的名词解释：</p>
+<blockquote>
+<ul>
+<li>Director（调度器，又叫负载均衡器/负载分发设备/负载分流设备）</li>
+<li>RS（真实服务器，隐藏在Director后面的一组提供服务的机器）</li>
+<li>DIP（调度服务器的IP）</li>
+<li>VIP（虚拟IP，该IP用户调度器，用于集群对外提供服务的IP）</li>
+<li>RIP（真实服务器的IP）</li>
+<li>CIP（客户端IP）</li>
+</ul>
+</blockquote>
+<p>IP负载均衡主要包括以下几种工作模式：</p>
+<h2 id="VS-NAT模式"><a href="#VS-NAT模式" class="headerlink" title="VS/NAT模式"></a>VS/NAT模式</h2><p>VS/NAT（Virtual Server via Network Address Translation）的意思是“网络地址转换”，其原理是：调度器（也称之为：负载均衡器，Director等）收到来自客户端的“请求报文”后，根据指定的调度算法，将请求报文转发（负载分发）给隐藏在调度器后面的一组“真实服务器”（以下称RS）中的某台服务器去处理，当真实服务器处理完成后，又将报文发给调度器，调度器再一次修改IP数据包内种中的源地址和源端口，然后将响应报文发回给客户端，至此，完成整个负载分发过程。</p>
+<p>IPVS模块是linux内核自带的，它工作在内核IP层，根据制定的调度算法和工作模式（NAT,DR，TUN)对负载进行分发，同时linux还提供ipvsadm管理工具，方便我们对IPVS进行配置。IPVS还内置提供了多种调度策略，并且内部还维护着一个“客户端连接-&gt;真实服务器”的Hash映射表，该hash表的作用是将客户端的后续报文都转发到同一台机器进行处理。</p>
+<p>很多硬件负载均衡设备就是采用NAT原理的。</p>
+<h3 id="基本要求"><a href="#基本要求" class="headerlink" title="基本要求"></a>基本要求</h3><ul>
+<li>调度器（Director）至少需要绑定两个IP（DIP和VIP），其中VIP是作为集群中对外服务的唯一接口；DIP用于连接内部RS服务器组，使调度器和RS服务器组连接在内部LAN中</li>
+<li>调度器需要配置成可以转发IP数据报（设置ip_forward=1）</li>
+<li>RS必须设置默认网关为DIP，以便响应报文能够发回到Director</li>
+<li>RS和Director必须在同一个子网中，否则RS不能正确将“响应报文”发送到Director</li>
+<li>如果client和调度器位于同一网段，那么就不能使用VS/NAT模式，此时可配置成VS/DR模式。（请思考为什么？）</li>
+</ul>
+<h3 id="报文转发的详细处理流程"><a href="#报文转发的详细处理流程" class="headerlink" title="报文转发的详细处理流程"></a>报文转发的详细处理流程</h3><ul>
+<li>来自客户端的请求报文发送到调度器（通过VIP）</li>
+<li>调度器网卡根据数据帧首部MAC地址发现是发给自己的，因此收下该数据帧并将其发给上层网卡驱动程序，网卡驱动去掉帧首部得到IP数据包内容并将其传给IP层处理。</li>
+<li>IPVS模块通过调度算法（或从连接映射hash表中找到映射，如果之前已经映射过的话），得到一台真实服务器（Real Server / RS），假设为RS1。</li>
+<li>修改IP数据报首部的“目标IP地址”和“目标端口”为RS1的IP和端口，然后将该数据包直接又发回给本机ARP模块处理</li>
+<li>ARP模块为IP地址找到对应的mac地址（这里是RS1网卡所对应的MAC地址，关于ARP如何做地址映射可《参考TCP/IP详解-卷一》）</li>
+<li>网卡驱动重新封装数据帧，并直接将数据帧发送到位于同一网络的RS1机器的网络接口卡</li>
+<li>RS1收到从调度器发来的数据帧，发现目标mac地址是自己，同时IP数据包内容中的目标地址也是本主机地址，所以就会处理该报文并交由响应端口对应的应用程序去处理</li>
+<li>当RS处理完成后，会设置响应报文中的“目标IP地址=CIP(CIP表示客户端IP), 源IP地址=RIP”，源端口=RS1的对应端口”</li>
+<li>RS搜索本机路由表，发现CIP并不是一个直接相连的主机也不是位于同一共享网络中，因此使用默认路由(DIP)进行路由转发，此时响应报文被发送到DIP（即调度器的IP）。</li>
+<li>调度器收到来自RS的响应报文，再次修改源IP地址为VIP以及源端口为调度器的端口，然后将报文重新发回给客户端</li>
+</ul>
+<p>至此，对报文的完整流程处理结束，报文被发回客户端</p>
+<h3 id="存在的问题"><a href="#存在的问题" class="headerlink" title="存在的问题"></a>存在的问题</h3><p>请求报文和响应报文都要经过调度器，因此调度器将会成为整个集群的瓶颈，这主要来自于：</p>
+<ul>
+<li>调度器对报文处理的速度</li>
+<li>调度器网卡出口带宽两方面，响应报文往往比请求报文要大的多，当这些响应报文都要经过调度器时，调度器网卡出口带宽将会是个瓶颈</li>
+</ul>
+<p>由于IPVS工作在内核，处理速度非常高，因此调度器的主要瓶颈来自于调度器的网卡带宽上。</p>
+<h3 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h3><ul>
+<li>为应付不断增长的流量，可以升级调度器的网卡为千兆网卡或万兆网卡，同时调度器与RS服务器组连接的交换机也要换成千兆或万兆的。除此以外，还要考虑调度器总线带宽，看操作系统和硬件配置能否应付处理的了那么大的流量。</li>
+<li>结合DNS-RR。将大的VS/NAT集群根据某种策略（如地域或其他）划分成多个小得集群，然后和DNS轮询混合使用</li>
+<li>考虑到多数应用请求报文小而响应报文大的这种非对称性特点，我们可以将VS/NAT模式换成VS/DR模式，这将会极大的提升调度器的吞吐率</li>
+</ul>
+<h3 id="补充说明："><a href="#补充说明：" class="headerlink" title="补充说明："></a>补充说明：</h3><blockquote>
+<p>调度器不但会修改“目标IP”还会修改“目标端口”，因此该模式支持端口映射（其他模式不支持）</p>
+</blockquote>
+<h2 id="VS-DR模式"><a href="#VS-DR模式" class="headerlink" title="VS/DR模式"></a>VS/DR模式</h2><p>VS/DR（直接路由）模式是对NAT模式的一种改进，该模式充分考虑到多数互联网服务的“非对称特性”（即请求报文小，响应报文大）特点，让Director仅接受请求报文，并且不修改数据包的情况下，直接将报文转发给RS处理（链路层数据帧目标地址发生了变化而已,IP数据报内容原封不动），当目标服务器处理完成后，直接将“响应报文”发送给Client，而不用在发给Director，因此，使用该模式调度器的吞吐率会得到了极大的提升。</p>
+<p>和NAT模式的一个显著的区别在于：在NAT模式下，需要在RS上设置网关为VIP，但在DR模式下，需要将VIP映射到RS服务器的本地“环回接口（loopback/lo interface)”上，这是因为DR模式Direcotor并没有对请求报文内容进行任何修改，仅仅只是转发报文给RS，如果没有在RS上映射VIP地址，当RS收到Director转发的报文时发现“目标IP地址=VIP”并不是本机，所以就会简单的丢弃掉该报文，这不是我们期望的，如果希望RS能够接受报文，最简单办法就是将VIP映射到本地“环回接口”上。这样Director就能够正确的处理从Director转发过来的报文了。（为什么不能将VIP映射到本地网卡上呢？请思考！）</p>
+<h3 id="基本要求-1"><a href="#基本要求-1" class="headerlink" title="基本要求"></a>基本要求</h3><ul>
+<li>与RS必须在同一个网络里，因为Director是直接修改数据帧的“目标mac地址”为RS的mac地址，因此，如果RS和Director不在一个直接相连的网络里（需要通过路由器路由）的话，RS将收不到该数据帧。</li>
+<li>DR模式不要求Director开启路由转发</li>
+<li>DR模式一定不能将网关设置到DIP，因为这将导致报文又发回到Director，这不是期望的结果</li>
+<li>在RS上需要将VIP绑定到lo接口上<br><code>$ ifconfig lo:0 inet VIP netmask 255.255.255.255</code> ）</li>
+</ul>
+<hr>
+<h3 id="FAQ"><a href="#FAQ" class="headerlink" title="FAQ:"></a>FAQ:</h3><p>A：为什么当Client和负载均衡器位于同一子网中时不可使用NAT模式？</p>
+<h2 id="A：在DR模式下，为什么不能在RS上将VIP映射到本地网卡上，而是映射到环回接口呢？"><a href="#A：在DR模式下，为什么不能在RS上将VIP映射到本地网卡上，而是映射到环回接口呢？" class="headerlink" title="A：在DR模式下，为什么不能在RS上将VIP映射到本地网卡上，而是映射到环回接口呢？"></a>A：在DR模式下，为什么不能在RS上将VIP映射到本地网卡上，而是映射到环回接口呢？</h2><p>Q: 因为lo接口是一个non-arp网络设备，它不会响应ARP请求，而其他接口会响应ARP请求。我们知道Director上的VIP是必须要对外的，整个集群的前端应该只有Director来接受“目标IP地址=VIP”的请求，如果在RS上将VIP映射到能够响应ARP请求的网络设备接口上，那么就会出现Director和RS都告诉ARP请求端它们各自的mac地址，这时就会造成混乱，请求报文可能不会发送到Director上而是直接被RS接收到了。</p>
+
+                    
+                        
+
+
+                    
+                    
+                        <p>
+                            <a
+                                href="/laogu.io/2012/07/25/ipvs-based-load-balance-in-detail/#post-footer"
+                                class="postShorten-excerpt_link link"
+                                aria-label=""
+                            >
+                                评论和共享
+                            </a>
+                        </p>
+                    
+                </div>
+            
+        </div>
+        
+    </article>
+    
+    
+    <article class="postShorten postShorten--thumbnailimg-bottom">
+        <div class="postShorten-wrap">
+            
+            <div class="postShorten-header">
+                <h1 class="postShorten-title">
+                    
+                        <a
+                            class="link-unstyled"
+                            href="/laogu.io/2012/01/03/how-to-use-git-remote-commands/"
+                            aria-label=": Git常用远程操作"
+                        >
+                            Git常用远程操作
+                        </a>
+                    
+                </h1>
+                <div class="postShorten-meta">
+    <time datetime="2012-01-03T16:29:29+08:00">
+	
+		    1月 03, 2012
+    	
+    </time>
+    
+</div>
+
+            </div>
+            
+                <div class="postShorten-content">
+                    <h4 id="Git常用远程操作"><a href="#Git常用远程操作" class="headerlink" title="Git常用远程操作"></a>Git常用远程操作</h4><p>在对Git远程操作命令理解之前，首先看下图，该图可以直观地帮助我们理解各操作命令执行后所影响的区域。</p>
+<blockquote>
+<p>本文假设你对git的常规概念如：工作区（workspace），索引区（index）,本地仓库（local repository）和远程仓库（remote repository）都已经有了初步的了解。</p>
+</blockquote>
+<p><img src="http://image.beekka.com/blog/2014/bg2014061202.jpg" alt="Git"></p>
+<h3 id="git-clone"><a href="#git-clone" class="headerlink" title="git clone"></a>git clone</h3><p>该命令用于克隆一个远程仓库到本地文件。</p>
+<blockquote>
+<p>$ git clone <a href="https://github.com/bafeimao/pages1" target="_blank" rel="noopener">https://github.com/bafeimao/pages1</a><br>该命令会在本地自动创建文件夹<code>pages1</code></p>
+</blockquote>
+<p>也可以指定要克隆到的本地文件夹名</p>
+<blockquote>
+<p>$ git clone <a href="https://github.com/bafeimao/pages1" target="_blank" rel="noopener">https://github.com/bafeimao/pages1</a> blog</p>
+</blockquote>
+<p>可以提供多种协议访问方式，例如，github上提供如下三种常见的协议：</p>
+<blockquote>
+<p>$ git clone <a href="https://github.com/bafeimao/pages1" target="_blank" rel="noopener">https://github.com/bafeimao/pages1</a><br>$ git clone <a href="mailto:git@github.com" target="_blank" rel="noopener">git@github.com</a>:bafeimao/pages1.git</p>
+</blockquote>
+<h3 id="git-remote"><a href="#git-remote" class="headerlink" title="git remote"></a>git remote</h3><p>要想对远程仓库进行管理，首先要使用<code>remote add</code>命令添加一个远程仓库对应的名称（其他命令如：<code>git pull</code>,<code>git push</code>等操作都将依赖于该远程仓库名 ）</p>
+<p>添加一个远程仓库(需要指定一个名称和仓库的具体地址)</p>
+<blockquote>
+<p>$ git remote add origin <a href="mailto:git@github.com" target="_blank" rel="noopener">git@github.com</a>:bafeimao/pages1.git</p>
+</blockquote>
+<p> 查看当前已经添加过的所有远程仓库列表</p>
+<blockquote>
+<p>$ git remote<br>origin</p>
+</blockquote>
+<p>使用-v选项可以看到更具体的名称和远程仓库URL</p>
+<blockquote>
+<p>$ git remote -v<br>origin    <a href="mailto:git@github.com" target="_blank" rel="noopener">git@github.com</a>:bafeimao/coconut-projects.git (fetch)<br>origin    <a href="mailto:git@github.com" target="_blank" rel="noopener">git@github.com</a>:bafeimao/coconut-projects.git (push)</p>
+</blockquote>
+<h3 id="git-fetch"><a href="#git-fetch" class="headerlink" title="git fetch"></a>git fetch</h3><p>成功添加远程仓库后，一旦远程仓库有更新，我就可以使用<code>fetch</code>命令将远程更改取回到本地仓库， 注意：这里是将更改取到本地仓库（local repository）而非本地工作区(workspace)，详见参考图）</p>
+<blockquote>
+<p>$ git fetch origin</p>
+</blockquote>
+<p>默认取回所有分支的更改，可以指定只获取具体分支的更改</p>
+<blockquote>
+<p>$ git fetch origin dev</p>
+</blockquote>
+<h3 id="git-pull"><a href="#git-pull" class="headerlink" title="git pull"></a>git pull</h3><p>根据上图，也可以直接将远程的某个分支的更改取回到工作区（workspace）中的指定分支上，这就要用到<code>git pull</code>命令了，该命令的基本用法如下:</p>
+<p><code>$ git pull [&lt;remote-repo&gt; [&lt;remote-branch&gt;[:&lt;local-branch&gt;]]]</code></p>
+<p>将远程仓库master分支上的更改合并到本地工作区的dev分支</p>
+<blockquote>
+<p>$ git pull origin master:dev</p>
+<p>冒号后面的本地分支名可以省略，省略时表示合并到当前工作分支:<br>$ git pull origin master</p>
+</blockquote>
+<h3 id="git-push"><a href="#git-push" class="headerlink" title="git push"></a>git push</h3><p>如果需要将本地仓库的更改提交到远程，就需要使用<code>git push</code>命令，该命令的基本用法如下：</p>
+<p><code>$ git push [&lt;remote-repo&gt; [&lt;local-branch&gt;[:&lt;remote-branch&gt;]]]</code></p>
+<p>将本地dev分支推送到远程dev分支</p>
+<blockquote>
+<p>$ git push origin dev:dev</p>
+</blockquote>
+<p>另外可以设定当前工作分支（假设为dev）的upstream分支（即对应的远程分支），这样设定以后，在执行push时可以省略<code>本地分支名：远程分支名</code>，甚至远程仓库名称origin也可以省略</p>
+<blockquote>
+<p>$ git push –set-upstream origin dev</p>
+</blockquote>
+<p>此时可以省略分支名</p>
+<blockquote>
+<p>$ git push origin</p>
+</blockquote>
+<p>甚至连origin都可以省略</p>
+<blockquote>
+<p>$ git push</p>
+</blockquote>
+<p><strong>注意</strong>：如果指定的远程分支不存在，则会在远程自动创建 </p>
+<p>如果没有指定本地分支名则表示删除远程分支，下面两种方式均执行删除远程分支dev</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ git push origin :dev </span><br><span class="line">$ git push origin --delete dev</span><br></pre></td></tr></table></figure>
+
+
+                    
+                        
+
+
+                    
+                    
+                        <p>
+                            <a
+                                href="/laogu.io/2012/01/03/how-to-use-git-remote-commands/#post-footer"
+                                class="postShorten-excerpt_link link"
+                                aria-label=""
+                            >
+                                评论和共享
+                            </a>
+                        </p>
+                    
+                </div>
+            
+        </div>
         
     </article>
     

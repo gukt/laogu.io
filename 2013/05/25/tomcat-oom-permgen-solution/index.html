@@ -6,25 +6,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="generator" content="老谷的技术博客">
-    <title>post title with whitespace - 老谷的技术博客</title>
+    <title>Tomcat发生java.lang.OutOfMemoryError: PermGen space的解决方案 - 老谷的技术博客</title>
     <meta name="author" content="gukt &lt;gukaitong@gmail.com&gt;">
     
     
     
         <link rel="alternate" type="application/atom+xml" title="RSS" href="/laogu.io/atom.xml">
     
-    <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"gukt <gukaitong@gmail.com>","sameAs":["https://github.com/","http://stackoverflow.com/users","https://twitter.com/","https://facebook.com/","https://plus.google.com/","https://www.linkedin.com/profile/","mailto"]},"articleBody":"","dateCreated":"2019-07-10T19:47:15+08:00","dateModified":"2019-07-10T19:47:15+08:00","datePublished":"2019-07-10T19:47:15+08:00","description":"","headline":"post title with whitespace","image":[],"mainEntityOfPage":{"@type":"WebPage","@id":"http://gukt.github.io/laogu.io/2019/07/10/post-title-with-whitespace/"},"publisher":{"@type":"Organization","name":"gukt <gukaitong@gmail.com>","sameAs":["https://github.com/","http://stackoverflow.com/users","https://twitter.com/","https://facebook.com/","https://plus.google.com/","https://www.linkedin.com/profile/","mailto"]},"url":"http://gukt.github.io/laogu.io/2019/07/10/post-title-with-whitespace/"}</script>
-    <meta name="description" content="老谷的技术博客">
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"gukt <gukaitong@gmail.com>","sameAs":["https://github.com/","http://stackoverflow.com/users","https://twitter.com/","https://facebook.com/","https://plus.google.com/","https://www.linkedin.com/profile/","mailto"]},"articleBody":"产生该问题的主要原因是JVM永久带空间不足导致的，可以在环境变量CATALINA_OPTS中提高MaxPermSize参数值\n1set CATALINA_OPTS = -XX:PermSize=128m -XX:MaxPermSize=512m\n\n如果是堆栈溢出,则需要提高xms的值\n1set CATALINA_OPTS = -Xms128m -Xmx1024m -XX:PermSize=128m -XX:MaxPermSize=512m\n\n\n参数解释:\n-xms128：表示JVM初始堆栈大小-xmx1024：表示JVM堆栈大小最大可以达到1M内存-XX:PermSize=128m：表示初始永久带内存大小-XX:MaxPermSize=512m：表示永久带最大内存大小\n\n为什么设置CATALINA_OPTS就会生效？因为在tomcat启动时会使用环境变量：JAVA_OPTS，CATALINA_OPTS, DEBUG_OPTS指定的值，查看%CATALINA_HOME%/bin/catalina.sh文件可以看到如下的代码段：\n1%_EXECJAVA% %JAVA_OPTS% %CATALINA_OPTS% %DEBUG_OPTS% -Djava.endorsed.dirs=&quot;%JAVA_ENDORSED_DIRS%&quot; -classpath &quot;%CLASSPATH%&quot; -Dcatalina.base=&quot;%CATALINA_BASE%&quot; -Dcatalina.home=&quot;%CATALINA_HOME%&quot; -Djava.io.tmpdir=&quot;%CATALINA_TMPDIR%&quot; %MAINCLASS% %CMD_LINE_ARGS% %ACTION%","dateCreated":"2013-05-25T22:59:35+08:00","dateModified":"2019-07-10T23:01:02+08:00","datePublished":"2013-05-25T22:59:35+08:00","description":"","headline":"Tomcat发生java.lang.OutOfMemoryError: PermGen space的解决方案","image":[],"mainEntityOfPage":{"@type":"WebPage","@id":"http://gukt.github.io/laogu.io/2013/05/25/tomcat-oom-permgen-solution/"},"publisher":{"@type":"Organization","name":"gukt <gukaitong@gmail.com>","sameAs":["https://github.com/","http://stackoverflow.com/users","https://twitter.com/","https://facebook.com/","https://plus.google.com/","https://www.linkedin.com/profile/","mailto"]},"url":"http://gukt.github.io/laogu.io/2013/05/25/tomcat-oom-permgen-solution/","keywords":"tomcat, troubleshooting"}</script>
+    <meta name="description" content="产生该问题的主要原因是JVM永久带空间不足导致的，可以在环境变量CATALINA_OPTS中提高MaxPermSize参数值 1set CATALINA_OPTS = -XX:PermSize=128m -XX:MaxPermSize=512m  如果是堆栈溢出,则需要提高xms的值 1set CATALINA_OPTS = -Xms128m -Xmx1024m -XX:PermSize=128m">
+<meta name="keywords" content="tomcat,troubleshooting">
 <meta property="og:type" content="blog">
-<meta property="og:title" content="post title with whitespace">
-<meta property="og:url" content="http://gukt.github.io/laogu.io/2019/07/10/post-title-with-whitespace/index.html">
+<meta property="og:title" content="Tomcat发生java.lang.OutOfMemoryError: PermGen space的解决方案">
+<meta property="og:url" content="http://gukt.github.io/laogu.io/2013/05/25/tomcat-oom-permgen-solution/index.html">
 <meta property="og:site_name" content="老谷的技术博客">
-<meta property="og:description" content="老谷的技术博客">
+<meta property="og:description" content="产生该问题的主要原因是JVM永久带空间不足导致的，可以在环境变量CATALINA_OPTS中提高MaxPermSize参数值 1set CATALINA_OPTS = -XX:PermSize=128m -XX:MaxPermSize=512m  如果是堆栈溢出,则需要提高xms的值 1set CATALINA_OPTS = -Xms128m -Xmx1024m -XX:PermSize=128m">
 <meta property="og:locale" content="zh-cn">
-<meta property="og:updated_time" content="2019-07-10T11:47:15.254Z">
+<meta property="og:updated_time" content="2019-07-10T15:01:02.132Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="post title with whitespace">
-<meta name="twitter:description" content="老谷的技术博客">
+<meta name="twitter:title" content="Tomcat发生java.lang.OutOfMemoryError: PermGen space的解决方案">
+<meta name="twitter:description" content="产生该问题的主要原因是JVM永久带空间不足导致的，可以在环境变量CATALINA_OPTS中提高MaxPermSize参数值 1set CATALINA_OPTS = -XX:PermSize=128m -XX:MaxPermSize=512m  如果是堆栈溢出,则需要提高xms的值 1set CATALINA_OPTS = -Xms128m -Xmx1024m -XX:PermSize=128m">
     
     
         
@@ -267,16 +268,22 @@
         <div class="post-header main-content-wrap text-left">
     
         <h1 class="post-title">
-            post title with whitespace
+            Tomcat发生java.lang.OutOfMemoryError: PermGen space的解决方案
         </h1>
     
     
         <div class="post-meta">
-    <time datetime="2019-07-10T19:47:15+08:00">
+    <time datetime="2013-05-25T22:59:35+08:00">
 	
-		    7月 10, 2019
+		    5月 25, 2013
     	
     </time>
+    
+        <span>发布在 </span>
+        
+    <a class="category-link" href="/laogu.io/categories/aaa/">aaa</a>
+
+
     
 </div>
 
@@ -286,7 +293,18 @@
     
     <div class="post-content markdown">
         <div class="main-content-wrap">
-            
+            <p>产生该问题的主要原因是JVM永久带空间不足导致的，可以在环境变量CATALINA_OPTS中提高MaxPermSize参数值</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">set CATALINA_OPTS = -XX:PermSize=128m -XX:MaxPermSize=512m</span><br></pre></td></tr></table></figure>
+
+<p>如果是堆栈溢出,则需要提高xms的值</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">set CATALINA_OPTS = -Xms128m -Xmx1024m -XX:PermSize=128m -XX:MaxPermSize=512m</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="参数解释"><a href="#参数解释" class="headerlink" title="参数解释:"></a>参数解释:</h3><blockquote>
+<p>-xms128：表示JVM初始堆栈大小<br>-xmx1024：表示JVM堆栈大小最大可以达到1M内存<br>-XX:PermSize=128m：表示初始永久带内存大小<br>-XX:MaxPermSize=512m：表示永久带最大内存大小</p>
+</blockquote>
+<h3 id="为什么设置CATALINA-OPTS就会生效？"><a href="#为什么设置CATALINA-OPTS就会生效？" class="headerlink" title="为什么设置CATALINA_OPTS就会生效？"></a>为什么设置CATALINA_OPTS就会生效？</h3><p>因为在tomcat启动时会使用环境变量：JAVA_OPTS，CATALINA_OPTS, DEBUG_OPTS指定的值，查看%CATALINA_HOME%/bin/catalina.sh文件可以看到如下的代码段：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%_EXECJAVA% %JAVA_OPTS% %CATALINA_OPTS% %DEBUG_OPTS% -Djava.endorsed.dirs=&quot;%JAVA_ENDORSED_DIRS%&quot; -classpath &quot;%CLASSPATH%&quot; -Dcatalina.base=&quot;%CATALINA_BASE%&quot; -Dcatalina.home=&quot;%CATALINA_HOME%&quot; -Djava.io.tmpdir=&quot;%CATALINA_TMPDIR%&quot; %MAINCLASS% %CMD_LINE_ARGS% %ACTION%</span><br></pre></td></tr></table></figure>
             
 
 
@@ -294,17 +312,27 @@
     </div>
     <div id="post-footer" class="post-footer main-content-wrap">
         
+            <div class="post-footer-tags">
+                <span class="text-color-light text-small">标签</span><br/>
+                
+    <a class="tag tag--primary tag--small t-link" href="/laogu.io/tags/tomcat/">tomcat</a> <a class="tag tag--primary tag--small t-link" href="/laogu.io/tags/troubleshooting/">troubleshooting</a>
+
+            </div>
+        
         
             <div class="post-actions-wrap">
     <nav>
         <ul class="post-actions post-action-nav">
             <li class="post-action">
                 
-                    <a
-                        class="post-action-btn btn btn--disabled"
-                        aria-hidden="true"
-                    >
-                        
+                    
+                <a
+                    class="post-action-btn btn btn--default tooltip--top"
+                    href="/laogu.io/2014/08/25/how-to-build-blog-on-github-by-hexo/"
+                    data-tooltip="使用Hexo在github上建立博客"
+                    aria-label="上一篇: 使用Hexo在github上建立博客"
+                >
+                    
                         <i class="fa fa-angle-left" aria-hidden="true"></i>
                         <span class="hide-xs hide-sm text-small icon-ml">上一篇</span>
                     </a>
@@ -314,9 +342,9 @@
                     
                 <a
                     class="post-action-btn btn btn--default tooltip--top"
-                    href="/laogu.io/2019/07/10/hello-world/"
-                    data-tooltip="Hello World"
-                    aria-label="下一篇: Hello World"
+                    href="/laogu.io/2013/02/26/setup-svn-server-on-linux/"
+                    data-tooltip="在linux上搭建svn服务器"
+                    aria-label="下一篇: 在linux上搭建svn服务器"
                 >
                     
                         <span class="hide-xs hide-sm text-small icon-mr">下一篇</span>
@@ -330,7 +358,7 @@
             <a
                 class="post-action-btn btn btn--default btn-open-shareoptions"
                 href="#btn-open-shareoptions"
-                aria-label="Share this post"
+                aria-label="Diesen Beitrag teilen"
             >
                 <i class="fa fa-share-alt" aria-hidden="true"></i>
             </a>
@@ -341,7 +369,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://gukt.github.io/laogu.io/2019/07/10/post-title-with-whitespace/"
+                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://gukt.github.io/laogu.io/2013/05/25/tomcat-oom-permgen-solution/"
                     title="分享到 Facebook"
                     aria-label="分享到 Facebook"
                 >
@@ -354,7 +382,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://twitter.com/intent/tweet?text=http://gukt.github.io/laogu.io/2019/07/10/post-title-with-whitespace/"
+                    target="new" href="https://twitter.com/intent/tweet?text=http://gukt.github.io/laogu.io/2013/05/25/tomcat-oom-permgen-solution/"
                     title="分享到 Twitter"
                     aria-label="分享到 Twitter"
                 >
@@ -367,7 +395,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://plus.google.com/share?url=http://gukt.github.io/laogu.io/2019/07/10/post-title-with-whitespace/"
+                    target="new" href="https://plus.google.com/share?url=http://gukt.github.io/laogu.io/2013/05/25/tomcat-oom-permgen-solution/"
                     title="分享到 Google+"
                     aria-label="分享到 Google+"
                 >
@@ -380,7 +408,7 @@
         
         <li class="post-action">
             
-                <a class="post-action-btn btn btn--default" href="#" aria-label="Back to top">
+                <a class="post-action-btn btn btn--default" href="#" aria-label="Nach oben">
             
                 <i class="fa fa-list" aria-hidden="true"></i>
             </a>
@@ -412,11 +440,14 @@
         <ul class="post-actions post-action-nav">
             <li class="post-action">
                 
-                    <a
-                        class="post-action-btn btn btn--disabled"
-                        aria-hidden="true"
-                    >
-                        
+                    
+                <a
+                    class="post-action-btn btn btn--default tooltip--top"
+                    href="/laogu.io/2014/08/25/how-to-build-blog-on-github-by-hexo/"
+                    data-tooltip="使用Hexo在github上建立博客"
+                    aria-label="上一篇: 使用Hexo在github上建立博客"
+                >
+                    
                         <i class="fa fa-angle-left" aria-hidden="true"></i>
                         <span class="hide-xs hide-sm text-small icon-ml">上一篇</span>
                     </a>
@@ -426,9 +457,9 @@
                     
                 <a
                     class="post-action-btn btn btn--default tooltip--top"
-                    href="/laogu.io/2019/07/10/hello-world/"
-                    data-tooltip="Hello World"
-                    aria-label="下一篇: Hello World"
+                    href="/laogu.io/2013/02/26/setup-svn-server-on-linux/"
+                    data-tooltip="在linux上搭建svn服务器"
+                    aria-label="下一篇: 在linux上搭建svn服务器"
                 >
                     
                         <span class="hide-xs hide-sm text-small icon-mr">下一篇</span>
@@ -442,7 +473,7 @@
             <a
                 class="post-action-btn btn btn--default btn-open-shareoptions"
                 href="#btn-open-shareoptions"
-                aria-label="Share this post"
+                aria-label="Diesen Beitrag teilen"
             >
                 <i class="fa fa-share-alt" aria-hidden="true"></i>
             </a>
@@ -453,7 +484,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://gukt.github.io/laogu.io/2019/07/10/post-title-with-whitespace/"
+                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://gukt.github.io/laogu.io/2013/05/25/tomcat-oom-permgen-solution/"
                     title="分享到 Facebook"
                     aria-label="分享到 Facebook"
                 >
@@ -466,7 +497,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://twitter.com/intent/tweet?text=http://gukt.github.io/laogu.io/2019/07/10/post-title-with-whitespace/"
+                    target="new" href="https://twitter.com/intent/tweet?text=http://gukt.github.io/laogu.io/2013/05/25/tomcat-oom-permgen-solution/"
                     title="分享到 Twitter"
                     aria-label="分享到 Twitter"
                 >
@@ -479,7 +510,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://plus.google.com/share?url=http://gukt.github.io/laogu.io/2019/07/10/post-title-with-whitespace/"
+                    target="new" href="https://plus.google.com/share?url=http://gukt.github.io/laogu.io/2013/05/25/tomcat-oom-permgen-solution/"
                     title="分享到 Google+"
                     aria-label="分享到 Google+"
                 >
@@ -492,7 +523,7 @@
         
         <li class="post-action">
             
-                <a class="post-action-btn btn btn--default" href="#" aria-label="Back to top">
+                <a class="post-action-btn btn btn--default" href="#" aria-label="Nach oben">
             
                 <i class="fa fa-list" aria-hidden="true"></i>
             </a>
@@ -513,7 +544,7 @@
                     <a
                         class="share-option-btn"
                         target="new"
-                        href="https://www.facebook.com/sharer/sharer.php?u=http://gukt.github.io/laogu.io/2019/07/10/post-title-with-whitespace/"
+                        href="https://www.facebook.com/sharer/sharer.php?u=http://gukt.github.io/laogu.io/2013/05/25/tomcat-oom-permgen-solution/"
                         aria-label="分享到 Facebook"
                     >
                         <i class="fab fa-facebook" aria-hidden="true"></i><span>分享到 Facebook</span>
@@ -526,7 +557,7 @@
                     <a
                         class="share-option-btn"
                         target="new"
-                        href="https://twitter.com/intent/tweet?text=http://gukt.github.io/laogu.io/2019/07/10/post-title-with-whitespace/"
+                        href="https://twitter.com/intent/tweet?text=http://gukt.github.io/laogu.io/2013/05/25/tomcat-oom-permgen-solution/"
                         aria-label="分享到 Twitter"
                     >
                         <i class="fab fa-twitter" aria-hidden="true"></i><span>分享到 Twitter</span>
@@ -539,7 +570,7 @@
                     <a
                         class="share-option-btn"
                         target="new"
-                        href="https://plus.google.com/share?url=http://gukt.github.io/laogu.io/2019/07/10/post-title-with-whitespace/"
+                        href="https://plus.google.com/share?url=http://gukt.github.io/laogu.io/2013/05/25/tomcat-oom-permgen-solution/"
                         aria-label="分享到 Google+"
                     >
                         <i class="fab fa-google-plus" aria-hidden="true"></i><span>分享到 Google+</span>

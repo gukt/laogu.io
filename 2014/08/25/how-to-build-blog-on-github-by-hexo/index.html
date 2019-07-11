@@ -1,0 +1,639 @@
+
+<!DOCTYPE html>
+<html lang="zh-cn">
+    
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="老谷的技术博客">
+    <title>使用Hexo在github上建立博客 - 老谷的技术博客</title>
+    <meta name="author" content="gukt &lt;gukaitong@gmail.com&gt;">
+    
+    
+    
+        <link rel="alternate" type="application/atom+xml" title="RSS" href="/laogu.io/atom.xml">
+    
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"gukt <gukaitong@gmail.com>","sameAs":["https://github.com/","http://stackoverflow.com/users","https://twitter.com/","https://facebook.com/","https://plus.google.com/","https://www.linkedin.com/profile/","mailto"]},"articleBody":"初始化运行如下命令以完成初始化操作\n1$ hexo init ~/blog &amp;&amp; cd ~/blog &amp;&amp; cnpm install\n\n成功执行后查看文件夹下的内容如下：\n12345678910total 24drwxr-xr-x   9 ktgu  staff   306  7 28 13:23 .drwxr-xr-x+ 66 ktgu  staff  2244  7 28 13:23 ..-rw-r--r--   1 ktgu  staff    65  7 28 13:23 .gitignore-rw-r--r--   1 ktgu  staff  1477  7 28 13:23 _config.ymldrwxr-xr-x  12 ktgu  staff   408  7 28 13:24 node_modules-rw-r--r--   1 ktgu  staff   442  7 28 13:23 package.jsondrwxr-xr-x   5 ktgu  staff   170  7 28 13:23 scaffoldsdrwxr-xr-x   3 ktgu  staff   102  7 28 13:23 sourcedrwxr-xr-x   3 ktgu  staff   102  7 28 13:23 themes\n\n生成文件Hexo生成文件速度非常快，使用如下命令即可生成文件\n123$ hexo generate或者$ hexo g\n\n部署到githubHexo提供了便捷的一键部署功能，并且支持部署到多个目的地，如：Git，HeroKu，Rsync，OpenShift，FTPSync等。下面以部署到github为例：\n首先要安装hexo-deployer-git插件\n\n$ cnpm install hexo-deployer-git –save\n\n然后打开_config.yaml文件，修改如下配置：\n12345...deploy:  type: git  repo: git@github.com:bafeimao/pages1.git  branch: gh-pages\n\n然后执行生成并部署\n12345$ hexo g &amp;&amp; hexo d或者$ hexo g --deploy或者$ hexo d --generate\n\n若成功部署，会看到如下信息：\n12345...To git@github.com:bafeimao/pages.git* [new branch]      master -&gt; gh-pagesBranch master set up to track remote branch gh-pages from git@github.com:bafeimao/pages.git.INFO  Deploy done: git\n\n注意：如部署失败，默认不显示任何错误信息，你可以加上–debug参数查看详情\n\n$ hexo d –debug\n\n最后，打开github博客验证是否成功部署：\nhttp://{github-user-name}.github.io/{repo-name}\n比如我的博客：http://bafeimao.github.io/gh-pages/\n","dateCreated":"2014-08-25T14:07:42+08:00","dateModified":"2019-07-10T23:01:02+08:00","datePublished":"2014-08-25T14:07:42+08:00","description":"","headline":"使用Hexo在github上建立博客","image":[],"mainEntityOfPage":{"@type":"WebPage","@id":"http://gukt.github.io/laogu.io/2014/08/25/how-to-build-blog-on-github-by-hexo/"},"publisher":{"@type":"Organization","name":"gukt <gukaitong@gmail.com>","sameAs":["https://github.com/","http://stackoverflow.com/users","https://twitter.com/","https://facebook.com/","https://plus.google.com/","https://www.linkedin.com/profile/","mailto"]},"url":"http://gukt.github.io/laogu.io/2014/08/25/how-to-build-blog-on-github-by-hexo/","keywords":"github"}</script>
+    <meta name="description" content="初始化运行如下命令以完成初始化操作 1$ hexo init ~/blog &amp;amp;&amp;amp; cd ~/blog &amp;amp;&amp;amp; cnpm install  成功执行后查看文件夹下的内容如下： 12345678910total 24drwxr-xr-x   9 ktgu  staff   306  7 28 13:23 .drwxr-xr-x+ 66 ktgu  staff  2244">
+<meta name="keywords" content="github">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="使用Hexo在github上建立博客">
+<meta property="og:url" content="http://gukt.github.io/laogu.io/2014/08/25/how-to-build-blog-on-github-by-hexo/index.html">
+<meta property="og:site_name" content="老谷的技术博客">
+<meta property="og:description" content="初始化运行如下命令以完成初始化操作 1$ hexo init ~/blog &amp;amp;&amp;amp; cd ~/blog &amp;amp;&amp;amp; cnpm install  成功执行后查看文件夹下的内容如下： 12345678910total 24drwxr-xr-x   9 ktgu  staff   306  7 28 13:23 .drwxr-xr-x+ 66 ktgu  staff  2244">
+<meta property="og:locale" content="zh-cn">
+<meta property="og:updated_time" content="2019-07-10T15:01:02.129Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用Hexo在github上建立博客">
+<meta name="twitter:description" content="初始化运行如下命令以完成初始化操作 1$ hexo init ~/blog &amp;amp;&amp;amp; cd ~/blog &amp;amp;&amp;amp; cnpm install  成功执行后查看文件夹下的内容如下： 12345678910total 24drwxr-xr-x   9 ktgu  staff   306  7 28 13:23 .drwxr-xr-x+ 66 ktgu  staff  2244">
+    
+    
+        
+    
+    
+    
+    
+    
+    <!--STYLES-->
+    <link rel="stylesheet" href="/laogu.io/assets/css/style-gaaya9oca00rrdn4glykpxlyb5pvxkm3dvxjy4bkozqxytr14bsatqhhlatd.min.css">
+    <!--STYLES END-->
+    
+
+    
+
+    
+        
+    
+</head>
+
+    <body>
+        <div id="blog">
+            <!-- Define author's picture -->
+
+
+    
+
+<header id="header" data-behavior="4">
+    <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+    <div class="header-title">
+        <a
+            class="header-title-link"
+            href="/laogu.io/ "
+            aria-label=""
+        >
+            老谷的技术博客
+        </a>
+    </div>
+    
+        
+            <a
+                class="header-right-picture "
+                href="#about"
+                aria-label="打开链接: /laogu.io/#about"
+            >
+        
+        
+        </a>
+    
+</header>
+
+            <!-- Define author's picture -->
+
+
+<nav id="sidebar" data-behavior="4">
+    <div class="sidebar-container">
+        
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/laogu.io/ "
+                            
+                            title="首页"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-home" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">首页</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/laogu.io/all-categories"
+                            
+                            title="分类"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-bookmark" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">分类</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/laogu.io/all-tags"
+                            
+                            title="标签"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-tags" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">标签</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/laogu.io/all-archives"
+                            
+                            title="归档"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-archive" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">归档</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link open-algolia-search"
+                             href="#search"
+                            
+                            title="搜索"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-search" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">搜索</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="#about"
+                            
+                            title="关于"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-question" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">关于</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://github.com/" target="_blank" rel="noopener" title="GitHub">
+                    
+                        <i class="sidebar-button-icon fab fa-github" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">GitHub</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="http://stackoverflow.com/users" target="_blank" rel="noopener" title="Stack Overflow">
+                    
+                        <i class="sidebar-button-icon fab fa-stack-overflow" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Stack Overflow</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://twitter.com/" target="_blank" rel="noopener" title="Twitter">
+                    
+                        <i class="sidebar-button-icon fab fa-twitter" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Twitter</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://facebook.com/" target="_blank" rel="noopener" title="Facebook">
+                    
+                        <i class="sidebar-button-icon fab fa-facebook" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Facebook</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://plus.google.com/" target="_blank" rel="noopener" title="Google Plus">
+                    
+                        <i class="sidebar-button-icon fab fa-google-plus" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Google Plus</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://www.linkedin.com/profile/" target="_blank" rel="noopener" title="LinkedIn">
+                    
+                        <i class="sidebar-button-icon fab fa-linkedin" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">LinkedIn</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/laogu.io/mailto"
+                            title="邮箱"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-envelope" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">邮箱</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/laogu.io/atom.xml"
+                            
+                            title="RSS"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-rss" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">RSS</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+    </div>
+</nav>
+
+            
+            <div id="main" data-behavior="4"
+                 class="
+                        hasCoverMetaIn
+                        ">
+                
+<article class="post">
+    
+    
+        <div class="post-header main-content-wrap text-left">
+    
+        <h1 class="post-title">
+            使用Hexo在github上建立博客
+        </h1>
+    
+    
+        <div class="post-meta">
+    <time datetime="2014-08-25T14:07:42+08:00">
+	
+		    8月 25, 2014
+    	
+    </time>
+    
+</div>
+
+    
+</div>
+
+    
+    <div class="post-content markdown">
+        <div class="main-content-wrap">
+            <h3 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h3><p>运行如下命令以完成初始化操作</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo init ~<span class="regexp">/blog &amp;&amp; cd ~/</span>blog &amp;&amp; cnpm install</span><br></pre></td></tr></table></figure>
+
+<p>成功执行后查看文件夹下的内容如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">total 24</span><br><span class="line">drwxr-xr-x   9 ktgu  staff   306  7 28 13:23 .</span><br><span class="line">drwxr-xr-x+ 66 ktgu  staff  2244  7 28 13:23 ..</span><br><span class="line">-rw-r--r--   1 ktgu  staff    65  7 28 13:23 .gitignore</span><br><span class="line">-rw-r--r--   1 ktgu  staff  1477  7 28 13:23 _config.yml</span><br><span class="line">drwxr-xr-x  12 ktgu  staff   408  7 28 13:24 node_modules</span><br><span class="line">-rw-r--r--   1 ktgu  staff   442  7 28 13:23 package.json</span><br><span class="line">drwxr-xr-x   5 ktgu  staff   170  7 28 13:23 scaffolds</span><br><span class="line">drwxr-xr-x   3 ktgu  staff   102  7 28 13:23 source</span><br><span class="line">drwxr-xr-x   3 ktgu  staff   102  7 28 13:23 themes</span><br></pre></td></tr></table></figure>
+
+<h3 id="生成文件"><a href="#生成文件" class="headerlink" title="生成文件"></a>生成文件</h3><p>Hexo生成文件速度非常快，使用如下命令即可生成文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br><span class="line">或者</span><br><span class="line">$ hexo g</span><br></pre></td></tr></table></figure>
+
+<h3 id="部署到github"><a href="#部署到github" class="headerlink" title="部署到github"></a>部署到github</h3><p>Hexo提供了便捷的一键部署功能，并且支持部署到多个目的地，如：Git，HeroKu，Rsync，OpenShift，FTPSync等。下面以部署到github为例：</p>
+<p>首先要安装hexo-deployer-git插件</p>
+<blockquote>
+<p>$ cnpm install hexo-deployer-git –save</p>
+</blockquote>
+<p>然后打开_config.yaml文件，修改如下配置：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">deploy:</span><br><span class="line">  type: git</span><br><span class="line">  repo: git@github.com:bafeimao/pages1.git</span><br><span class="line">  branch: gh-pages</span><br></pre></td></tr></table></figure>
+
+<p>然后执行生成并部署</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ hexo g &amp;&amp; hexo d</span><br><span class="line">或者</span><br><span class="line">$ hexo g --deploy</span><br><span class="line">或者</span><br><span class="line">$ hexo d --generate</span><br></pre></td></tr></table></figure>
+
+<p>若成功部署，会看到如下信息：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">To git@github.com:bafeimao/pages.git</span><br><span class="line">* [new branch]      master -&gt; gh-pages</span><br><span class="line">Branch master set up to track remote branch gh-pages from git@github.com:bafeimao/pages.git.</span><br><span class="line">INFO  Deploy done: git</span><br></pre></td></tr></table></figure>
+
+<p><strong>注意</strong>：如部署失败，默认不显示任何错误信息，你可以加上–debug参数查看详情</p>
+<blockquote>
+<p>$ hexo d –debug</p>
+</blockquote>
+<p>最后，打开github博客验证是否成功部署：</p>
+<p><code>http://{github-user-name}.github.io/{repo-name}</code></p>
+<p>比如我的博客：<a href="http://bafeimao.github.io/gh-pages/" target="_blank" rel="noopener">http://bafeimao.github.io/gh-pages/</a></p>
+
+            
+
+
+        </div>
+    </div>
+    <div id="post-footer" class="post-footer main-content-wrap">
+        
+            <div class="post-footer-tags">
+                <span class="text-color-light text-small">标签</span><br/>
+                
+    <a class="tag tag--primary tag--small t-link" href="/laogu.io/tags/github/">github</a>
+
+            </div>
+        
+        
+            <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    
+                <a
+                    class="post-action-btn btn btn--default tooltip--top"
+                    href="/laogu.io/2015/09/25/ssh-login-without-password-configuration/"
+                    data-tooltip="配置SSH无密码登陆"
+                    aria-label="上一篇: 配置SSH无密码登陆"
+                >
+                    
+                        <i class="fa fa-angle-left" aria-hidden="true"></i>
+                        <span class="hide-xs hide-sm text-small icon-ml">上一篇</span>
+                    </a>
+            </li>
+            <li class="post-action">
+                
+                    
+                <a
+                    class="post-action-btn btn btn--default tooltip--top"
+                    href="/laogu.io/2013/05/25/tomcat-oom-permgen-solution/"
+                    data-tooltip="Tomcat发生java.lang.OutOfMemoryError: PermGen space的解决方案"
+                    aria-label="下一篇: Tomcat发生java.lang.OutOfMemoryError: PermGen space的解决方案"
+                >
+                    
+                        <span class="hide-xs hide-sm text-small icon-mr">下一篇</span>
+                        <i class="fa fa-angle-right" aria-hidden="true"></i>
+                    </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a
+                class="post-action-btn btn btn--default btn-open-shareoptions"
+                href="#btn-open-shareoptions"
+                aria-label="Diesen Beitrag teilen"
+            >
+                <i class="fa fa-share-alt" aria-hidden="true"></i>
+            </a>
+        </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a
+                    class="post-action-btn btn btn--default"
+                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://gukt.github.io/laogu.io/2014/08/25/how-to-build-blog-on-github-by-hexo/"
+                    title="分享到 Facebook"
+                    aria-label="分享到 Facebook"
+                >
+                    <i class="fab fa-facebook" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a
+                    class="post-action-btn btn btn--default"
+                    target="new" href="https://twitter.com/intent/tweet?text=http://gukt.github.io/laogu.io/2014/08/25/how-to-build-blog-on-github-by-hexo/"
+                    title="分享到 Twitter"
+                    aria-label="分享到 Twitter"
+                >
+                    <i class="fab fa-twitter" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a
+                    class="post-action-btn btn btn--default"
+                    target="new" href="https://plus.google.com/share?url=http://gukt.github.io/laogu.io/2014/08/25/how-to-build-blog-on-github-by-hexo/"
+                    title="分享到 Google+"
+                    aria-label="分享到 Google+"
+                >
+                    <i class="fab fa-google-plus" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+        
+            
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#" aria-label="Nach oben">
+            
+                <i class="fa fa-list" aria-hidden="true"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+        
+        
+            
+        
+    </div>
+</article>
+
+
+
+                <footer id="footer" class="main-content-wrap">
+    <span class="copyrights">
+        Copyrights &copy; 2019 gukt &lt;gukaitong@gmail.com&gt;. All Rights Reserved.
+    </span>
+</footer>
+
+            </div>
+            
+                <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+                    <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    
+                <a
+                    class="post-action-btn btn btn--default tooltip--top"
+                    href="/laogu.io/2015/09/25/ssh-login-without-password-configuration/"
+                    data-tooltip="配置SSH无密码登陆"
+                    aria-label="上一篇: 配置SSH无密码登陆"
+                >
+                    
+                        <i class="fa fa-angle-left" aria-hidden="true"></i>
+                        <span class="hide-xs hide-sm text-small icon-ml">上一篇</span>
+                    </a>
+            </li>
+            <li class="post-action">
+                
+                    
+                <a
+                    class="post-action-btn btn btn--default tooltip--top"
+                    href="/laogu.io/2013/05/25/tomcat-oom-permgen-solution/"
+                    data-tooltip="Tomcat发生java.lang.OutOfMemoryError: PermGen space的解决方案"
+                    aria-label="下一篇: Tomcat发生java.lang.OutOfMemoryError: PermGen space的解决方案"
+                >
+                    
+                        <span class="hide-xs hide-sm text-small icon-mr">下一篇</span>
+                        <i class="fa fa-angle-right" aria-hidden="true"></i>
+                    </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a
+                class="post-action-btn btn btn--default btn-open-shareoptions"
+                href="#btn-open-shareoptions"
+                aria-label="Diesen Beitrag teilen"
+            >
+                <i class="fa fa-share-alt" aria-hidden="true"></i>
+            </a>
+        </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a
+                    class="post-action-btn btn btn--default"
+                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://gukt.github.io/laogu.io/2014/08/25/how-to-build-blog-on-github-by-hexo/"
+                    title="分享到 Facebook"
+                    aria-label="分享到 Facebook"
+                >
+                    <i class="fab fa-facebook" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a
+                    class="post-action-btn btn btn--default"
+                    target="new" href="https://twitter.com/intent/tweet?text=http://gukt.github.io/laogu.io/2014/08/25/how-to-build-blog-on-github-by-hexo/"
+                    title="分享到 Twitter"
+                    aria-label="分享到 Twitter"
+                >
+                    <i class="fab fa-twitter" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a
+                    class="post-action-btn btn btn--default"
+                    target="new" href="https://plus.google.com/share?url=http://gukt.github.io/laogu.io/2014/08/25/how-to-build-blog-on-github-by-hexo/"
+                    title="分享到 Google+"
+                    aria-label="分享到 Google+"
+                >
+                    <i class="fab fa-google-plus" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+        
+            
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#" aria-label="Nach oben">
+            
+                <i class="fa fa-list" aria-hidden="true"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+                </div>
+                
+    <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+        <i id="btn-close-shareoptions" class="fa fa-times"></i>
+        <ul class="share-options">
+            
+                
+                
+                <li class="share-option">
+                    <a
+                        class="share-option-btn"
+                        target="new"
+                        href="https://www.facebook.com/sharer/sharer.php?u=http://gukt.github.io/laogu.io/2014/08/25/how-to-build-blog-on-github-by-hexo/"
+                        aria-label="分享到 Facebook"
+                    >
+                        <i class="fab fa-facebook" aria-hidden="true"></i><span>分享到 Facebook</span>
+                    </a>
+                </li>
+            
+                
+                
+                <li class="share-option">
+                    <a
+                        class="share-option-btn"
+                        target="new"
+                        href="https://twitter.com/intent/tweet?text=http://gukt.github.io/laogu.io/2014/08/25/how-to-build-blog-on-github-by-hexo/"
+                        aria-label="分享到 Twitter"
+                    >
+                        <i class="fab fa-twitter" aria-hidden="true"></i><span>分享到 Twitter</span>
+                    </a>
+                </li>
+            
+                
+                
+                <li class="share-option">
+                    <a
+                        class="share-option-btn"
+                        target="new"
+                        href="https://plus.google.com/share?url=http://gukt.github.io/laogu.io/2014/08/25/how-to-build-blog-on-github-by-hexo/"
+                        aria-label="分享到 Google+"
+                    >
+                        <i class="fab fa-google-plus" aria-hidden="true"></i><span>分享到 Google+</span>
+                    </a>
+                </li>
+            
+        </ul>
+    </div>
+
+
+            
+        </div>
+        
+
+
+<div id="about">
+    <div id="about-card">
+        <div id="about-btn-close">
+            <i class="fa fa-times"></i>
+        </div>
+        
+            <h4 id="about-card-name">gukt &lt;gukaitong@gmail.com&gt;</h4>
+        
+            <div id="about-card-bio"><p>author.bio</p>
+</div>
+        
+        
+            <div id="about-card-job">
+                <i class="fa fa-briefcase"></i>
+                <br/>
+                <p>author.job</p>
+
+            </div>
+        
+        
+    </div>
+</div>
+
+        
+        
+<div id="cover" style="background-image:url('/laogu.io/assets/images/cover.jpg');"></div>
+        <!--SCRIPTS-->
+<script src="/laogu.io/assets/js/script-q0fglnec6lx8fngspcobzz6czrycekdvriix31kqt4jen6jrbglulikeukvi.min.js"></script>
+<!--SCRIPTS END-->
+
+
+    
+
+
+
+
+    </body>
+</html>
